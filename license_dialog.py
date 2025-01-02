@@ -99,9 +99,9 @@ class LicenseDialog(tk.Toplevel):
         messagebox.showinfo("Purchase License",
                           "You will now be redirected to sysDaemonAI.com\n\n"
                           "Available License Tiers:\n"
-                          "• Individual: $199/year\n"
-                          "• Professional: $499/year\n"
-                          "• Enterprise: Starting at $2,499/year")
+                          "• Individual: $30/year\n"
+                          "• Professional: $99/year\n"
+                          "• Enterprise: Starting at $1,499/year")
         webbrowser.open('https://sysDaemonAI.com')
         
     def continue_trial(self):
