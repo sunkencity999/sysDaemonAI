@@ -5,19 +5,19 @@ A powerful system monitoring and security suite powered by advanced AI technolog
 ## Screenshots
 
 ### Network Monitoring Dashboard
-![Network Monitoring Dashboard](resources/Screenshot%202025-01-02%20at%2010.41.34%20AM.png)
+![Network Monitoring Dashboard](https://raw.githubusercontent.com/sunkencity999/sysDaemonAI/main/resources/Screenshot%202025-01-02%20at%2010.41.34%20AM.png)
 *Real-time network traffic analysis with protocol breakdown and connection tracking*
 
 ### Virus Scanner Interface
-![Virus Scanner Interface](resources/Screenshot%202025-01-02%20at%2010.42.51%20AM.png)
+![Virus Scanner Interface](https://raw.githubusercontent.com/sunkencity999/sysDaemonAI/main/resources/Screenshot%202025-01-02%20at%2010.42.51%20AM.png)
 *Advanced virus scanning with threat confidence levels and quarantine options*
 
 ### AI Agent Management
-![AI Agent Management](resources/Screenshot%202025-01-02%20at%2010.43.20%20AM.png)
+![AI Agent Management](https://raw.githubusercontent.com/sunkencity999/sysDaemonAI/main/resources/Screenshot%202025-01-02%20at%2010.43.20%20AM.png)
 *CrewAI agent configuration and monitoring interface*
 
 ### System Analysis
-![System Analysis](resources/Screenshot%202025-01-02%20at%2010.46.32%20AM.png)
+![System Analysis](https://raw.githubusercontent.com/sunkencity999/sysDaemonAI/main/resources/Screenshot%202025-01-02%20at%2010.46.32%20AM.png)
 *Detailed system analysis with AI-powered insights*
 
 ## Core Features
