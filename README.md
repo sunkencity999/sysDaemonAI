@@ -5,7 +5,7 @@ A powerful system monitoring and security suite powered by advanced AI technolog
 ## Screenshots
 
 ### Network Monitoring Dashboard
-![Network Monitoring Dashboard]([(https://github.com/sunkencity999/sysDaemonAI/blob/main/resources/Screenshot%202025-01-02%20at%2010.41.34%E2%80%AFAM.png))
+![Network Monitoring Dashboard]([https://github.com/sunkencity999/sysDaemonAI/blob/main/resources/Screenshot%202025-01-02%20at%2010.41.34%E2%80%AFAM.png?raw=true]))
 *Real-time network traffic analysis with protocol breakdown and connection tracking*
 
 ### Virus Scanner Interface
