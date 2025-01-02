@@ -9,20 +9,20 @@ A powerful system monitoring and security suite powered by advanced AI technolog
 
 *Real-time network traffic analysis with protocol breakdown and connection tracking*
 
-### Virus Scanner Interface
+### Data Visualizations
 ![Virus Scanner Interface](https://github.com/user-attachments/assets/3336337e-c567-468e-83a0-63ba29f0073e)
 
-*Advanced virus scanning with threat confidence levels and quarantine options*
+*Customizeable graphing solutions*
 
 ### AI Agent Management
 ![AI Agent Management](https://github.com/user-attachments/assets/4062f8c2-cf73-4500-b46a-d3ccf7ba7ab5)
 
 *CrewAI agent configuration and monitoring interface*
 
-### System Analysis
+### Packet Capture Functionality
 ![System Analysis](https://github.com/user-attachments/assets/dd56cdc2-065f-42a0-9270-d7d6cd5d7080)
 
-*Detailed system analysis with AI-powered insights*
+*Easy export of pcap files and network data*
 
 ## Core Features
 
