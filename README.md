@@ -2,6 +2,24 @@
 
 A powerful system monitoring and security suite powered by advanced AI technology. This application combines real-time network monitoring, threat detection, and intelligent system analysis to provide comprehensive protection for your system.
 
+## Screenshots
+
+### Network Monitoring Dashboard
+![Network Monitoring Dashboard](resources/Screenshot%202025-01-02%20at%2010.41.34%20AM.png)
+*Real-time network traffic analysis with protocol breakdown and connection tracking*
+
+### Virus Scanner Interface
+![Virus Scanner Interface](resources/Screenshot%202025-01-02%20at%2010.42.51%20AM.png)
+*Advanced virus scanning with threat confidence levels and quarantine options*
+
+### AI Agent Management
+![AI Agent Management](resources/Screenshot%202025-01-02%20at%2010.43.20%20AM.png)
+*CrewAI agent configuration and monitoring interface*
+
+### System Analysis
+![System Analysis](resources/Screenshot%202025-01-02%20at%2010.46.32%20AM.png)
+*Detailed system analysis with AI-powered insights*
+
 ## Core Features
 
 ### 1. Network Monitoring
