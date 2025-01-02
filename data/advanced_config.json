@@ -1,0 +1,73 @@
+{
+    "monitoring": {
+        "intervals": {
+            "system_metrics": 5,
+            "network_connections": 2,
+            "threat_detection": 10,
+            "performance_check": 30
+        },
+        "thresholds": {
+            "cpu_warning": 80,
+            "cpu_critical": 90,
+            "memory_warning": 85,
+            "memory_critical": 95,
+            "disk_warning": 85,
+            "disk_critical": 95,
+            "network_spike_threshold": 1000000
+        },
+        "retention": {
+            "metrics_days": 90,
+            "connections_days": 30,
+            "alerts_days": 180
+        }
+    },
+    "logging": {
+        "log_rotation": {
+            "max_size_mb": 100,
+            "backup_count": 5,
+            "compression": true
+        },
+        "log_levels": {
+            "console": "INFO",
+            "file": "DEBUG",
+            "database": "INFO"
+        }
+    },
+    "security": {
+        "ip_blacklist_update_interval": 3600,
+        "threat_detection_sensitivity": 0.7,
+        "auto_block_threshold": 0.9,
+        "whitelist": [],
+        "blacklist": []
+    },
+    "backup": {
+        "enabled": true,
+        "interval_hours": 24,
+        "retention_count": 7,
+        "compression": true,
+        "backup_paths": [
+            "logs/",
+            "data/"
+        ]
+    },
+    "visualization": {
+        "default_timespan": "24h",
+        "update_interval": 5,
+        "max_datapoints": 1000,
+        "chart_themes": {
+            "light": {
+                "background": "#ffffff",
+                "text": "#000000",
+                "grid": "#e0e0e0"
+            },
+            "dark": {
+                "background": "#2d2d2d",
+                "text": "#ffffff",
+                "grid": "#404040"
+            }
+        }
+    },
+    "api_keys": {
+        "abuseipdb": "d823ef94bd0ab629c2ebbd7ba44dc7a8ad7774a040fd7e3239ef9d03f97fc3a2f00fd3434022b58e"
+    }
+}

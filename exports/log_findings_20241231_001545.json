@@ -1,0 +1,762 @@
+{
+  "timestamp": "20241231_001545",
+  "total_findings": 47,
+  "findings": [
+    {
+      "timestamp": "2024-12-31 06:46:10",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 06:46:10:878 [cato-ios_logger:81] [140634] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 06:46:11",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 06:46:11:176 [cato-ios_logger:81] [139088] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 06:46:11",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 06:46:11:178 [cato-ios_logger:81] [140634] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 06:48:11",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 06:48:11:603 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 06:50:12",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 06:50:12:131 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 06:52:12",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 06:52:12:627 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 06:54:12",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 06:54:12:983 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 06:56:13",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 06:56:13:365 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 06:58:13",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 06:58:13:624 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:00:13",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:00:13:925 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:02:14",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:02:14:281 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:04:14",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:04:14:653 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:06:15",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:06:15:049 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:08:15",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:08:15:352 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:10:15",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:10:15:715 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:12:16",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:12:16:157 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:14:16",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:14:16:628 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:16:17",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:16:17:245 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:18:17",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:18:17:648 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:20:18",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:20:18:063 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:22:18",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:22:18:372 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:24:18",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:24:18:729 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:26:19",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:26:19:112 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:28:19",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:28:19:518 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:30:19",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:30:19:896 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:32:20",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:32:20:212 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:34:20",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:34:20:662 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:36:21",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:36:21:096 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:38:21",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:38:21:463 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:40:21",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:40:21:874 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:42:22",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:42:22:244 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:44:22",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:44:22:572 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:46:22",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:46:22:964 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:48:23",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:48:23:664 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:50:24",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:50:24:123 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:52:24",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:52:24:563 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:54:25",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:54:25:050 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:56:25",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:56:25:449 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 07:58:25",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 07:58:25:799 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 08:00:26",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 08:00:26:208 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 08:02:26",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--06-46-10-874.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 08:02:26:519 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 08:04:27",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--08-04-26-800.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 08:04:27:030 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 08:06:27",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--08-04-26-800.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 08:06:27:489 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 08:08:27",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--08-04-26-800.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 08:08:27:989 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 08:10:28",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--08-04-26-800.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 08:10:28:402 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 08:12:28",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--08-04-26-800.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 08:12:28:726 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    },
+    {
+      "timestamp": "2024-12-31 08:14:29",
+      "category": "malware",
+      "source": "com.catonetworks.mac.CatoClient.UserAgent 2024-12-31--08-04-26-800.log",
+      "matches": [
+        "malware"
+      ],
+      "severity": "HIGH",
+      "description": "Potential malware activity detected",
+      "recommendations": [
+        "Isolate affected systems",
+        "Run full system scan",
+        "Update antivirus signatures"
+      ],
+      "raw_log": "2024-12-31 08:14:29:097 [cato-ios_logger:81] [12823] [1363] [_tunnelless_parse_gprops_config:450] D tnlss: Not found \"vpn_client_device_posture_anti_malware_rtp_policy\" GP, using legacy value"
+    }
+  ],
+  "metadata": {
+    "time_window": "Last Hour",
+    "severity_filter": "All"
+  }
+}

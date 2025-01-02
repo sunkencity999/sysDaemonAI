@@ -1,0 +1,52 @@
+psutil>=5.9.7
+pandas>=2.1.4
+scapy>=2.5.0
+requests>=2.31.0
+schedule>=1.2.1
+plyer>=2.1.0
+pyobjc-core>=9.2
+pyobjc-framework-Cocoa>=9.2
+pyobjus>=1.2.1; sys_platform == 'darwin'  # Required for macOS notifications
+openpyxl>=3.1.2
+statistics>=1.0.3
+PyQt6>=6.6.1
+PyQt6-Charts>=6.6.1
+PyQt6-Qt6>=6.6.1
+python-dateutil>=2.8.2
+SQLAlchemy>=2.0.23
+alembic>=1.13.0
+matplotlib>=3.8.2
+seaborn>=0.13.0
+pydantic>=2.5.2
+python-dotenv>=1.0.0
+cryptography>=41.0.7
+prometheus-client>=0.19.0
+cachetools>=5.5.0
+aiosqlite>=0.19.0  # For async SQLite support
+aiohttp>=3.9.1  # For async HTTP requests
+aiomultiprocess>=0.9.0  # For async multiprocessing
+aiofiles>=23.2.1  # For async file operations
+openai>=1.6.1  # For enhanced LLM capabilities
+tenacity>=8.2.3  # For robust retry mechanisms
+rich>=13.7.0  # For enhanced console output
+redis>=5.0.1
+netifaces>=0.11.0  # For network interface information
+pyshark>=0.6.0  # For additional packet capture capabilities
+crewai>=0.11.0
+langchain>=0.1.0
+beautifulsoup4>=4.12.2  # For web crawling
+
+# Threat Intelligence dependencies
+PyQt6>=6.4.0
+yara-python>=4.3.0
+python-magic>=0.4.27
+aiohttp>=3.8.4
+requests>=2.28.0
+
+# Testing dependencies
+pytest>=8.3.4
+pytest-asyncio>=0.25.0  # For testing async code
+pytest-cov>=6.0.0  # For code coverage reports
+pytest-mock>=3.14.0  # For mocking in tests
+pytest-timeout>=2.3.1  # For test timeouts
+pytest-xdist>=3.6.1  # For parallel test execution

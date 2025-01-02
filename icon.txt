@@ -1,0 +1,5 @@
+To add an icon:
+1. Find or create a .icns file
+2. Right-click on launch_network_monitor.command
+3. Click "Get Info"
+4. Drag your .icns file onto the small icon in the top-left corner of the Get Info window

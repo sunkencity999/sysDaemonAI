@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.sysdaemonai</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/christopher.bradford/sysDaemonAI/startup_wrapper.command</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>LaunchOnlyOnce</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/Users/christopher.bradford/sysDaemonAI/logs/sysdaemon.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/christopher.bradford/sysDaemonAI/logs/sysdaemon.error.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin</string>
+        <key>PYTHONPATH</key>
+        <string>/Users/christopher.bradford/sysDaemonAI</string>
+        <key>DISPLAY</key>
+        <string>:0</string>
+        <key>HOME</key>
+        <string>/Users/christopher.bradford</string>
+    </dict>
+    <key>WorkingDirectory</key>
+    <string>/Users/christopher.bradford/sysDaemonAI</string>
+</dict>
+</plist>

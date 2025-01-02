@@ -1,0 +1,106 @@
+{
+  "timestamp": "20241225_233635",
+  "total_findings": 6,
+  "findings": [
+    {
+      "timestamp": "2024-12-25 23:05:11",
+      "category": "system",
+      "source": "launchd.log",
+      "matches": [
+        "crash"
+      ],
+      "severity": "MEDIUM",
+      "description": "System stability issue detected",
+      "recommendations": [
+        "Check system resources",
+        "Review error logs",
+        "Monitor system performance"
+      ],
+      "raw_log": "2024-12-25 23:05:11.198139 (gui/502/com.apple.xpc.launchd.unmanaged.chrome_crashpad.1334 [1334]) <Notice>: added unmanaged active"
+    },
+    {
+      "timestamp": "2024-12-25 23:05:11",
+      "category": "system",
+      "source": "launchd.log",
+      "matches": [
+        "crash"
+      ],
+      "severity": "MEDIUM",
+      "description": "System stability issue detected",
+      "recommendations": [
+        "Check system resources",
+        "Review error logs",
+        "Monitor system performance"
+      ],
+      "raw_log": "2024-12-25 23:05:11.198375 (gui/502 [100019]) <Notice>: service inactive: com.apple.xpc.launchd.unmanaged.chrome_crashpad.1334"
+    },
+    {
+      "timestamp": "2024-12-25 23:05:11",
+      "category": "system",
+      "source": "launchd.log",
+      "matches": [
+        "crash"
+      ],
+      "severity": "MEDIUM",
+      "description": "System stability issue detected",
+      "recommendations": [
+        "Check system resources",
+        "Review error logs",
+        "Monitor system performance"
+      ],
+      "raw_log": "2024-12-25 23:05:11.198388 (gui/502 [100019]) <Notice>: removing inactive unmanaged service: com.apple.xpc.launchd.unmanaged.chrome_crashpad.1334"
+    },
+    {
+      "timestamp": "2024-12-25 23:25:13",
+      "category": "system",
+      "source": "launchd.log",
+      "matches": [
+        "crash"
+      ],
+      "severity": "MEDIUM",
+      "description": "System stability issue detected",
+      "recommendations": [
+        "Check system resources",
+        "Review error logs",
+        "Monitor system performance"
+      ],
+      "raw_log": "2024-12-25 23:25:13.862209 (gui/502/com.apple.xpc.launchd.unmanaged.chrome_crashpad.9676 [9676]) <Notice>: added unmanaged active"
+    },
+    {
+      "timestamp": "2024-12-25 23:25:13",
+      "category": "system",
+      "source": "launchd.log",
+      "matches": [
+        "crash"
+      ],
+      "severity": "MEDIUM",
+      "description": "System stability issue detected",
+      "recommendations": [
+        "Check system resources",
+        "Review error logs",
+        "Monitor system performance"
+      ],
+      "raw_log": "2024-12-25 23:25:13.862428 (gui/502 [100019]) <Notice>: service inactive: com.apple.xpc.launchd.unmanaged.chrome_crashpad.9676"
+    },
+    {
+      "timestamp": "2024-12-25 23:25:13",
+      "category": "system",
+      "source": "launchd.log",
+      "matches": [
+        "crash"
+      ],
+      "severity": "MEDIUM",
+      "description": "System stability issue detected",
+      "recommendations": [
+        "Check system resources",
+        "Review error logs",
+        "Monitor system performance"
+      ],
+      "raw_log": "2024-12-25 23:25:13.862437 (gui/502 [100019]) <Notice>: removing inactive unmanaged service: com.apple.xpc.launchd.unmanaged.chrome_crashpad.9676"
+    }
+  ],
+  "metadata": {
+    "time_window": "Last Hour",
+    "severity_filter": "All"
+  }
+}
