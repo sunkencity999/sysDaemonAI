@@ -244,6 +244,25 @@ Contributions are welcome! Please read our contributing guidelines and submit pu
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Commercial License
+
+This software is licensed for commercial use. By purchasing a license, you agree to the following terms:
+
+- You may install and use the software on the specified number of machines as per the license tier purchased.
+- You may not redistribute, modify, or reverse-engineer the software without written permission from the author.
+- Support and updates are provided for the duration of the license.
+- Licenses are non-transferable.
+
+For more details, please refer to the licensing agreement provided upon purchase.
+
+## Licensing Information
+
+- **Personal License**: $30/year (single machine)
+- **Professional License**: $99/year (up to five machines)
+- **Enterprise License**: $1499 (unlimited installations)
+
+Visit [sysdaemonai.com](https://sysdaemonai.com) to purchase licenses.
+
 ## Acknowledgments
 - Codeium AI team for AI integration support
 - VirusTotal for threat intelligence
@@ -496,10 +515,6 @@ Contributions are welcome! Please follow these steps:
 3. Make your changes
 4. Submit a pull request
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## Version History
 
 ### v1.3.0 (December 19, 2024)
@@ -521,9 +536,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Integration with AbuseIPDB
 - Basic automated responses
 - Data persistence and analytics
-
-## Support
-
-For issues, questions, or contributions, please contact:
-- Email: contact@christopherdanielbradford.com
-- GitHub Issues: [Project Issues Page](https://github.com/sunkencity999/sysdaemon-ai/issues)
