@@ -78,6 +78,13 @@ The keys are automatically generated and managed by the application:
 
 ## For End Users
 
+### Client License Manager
+
+The client version of the license manager is available for end users to install their licenses easily:
+```bash
+/Users/christopher.bradford/sysDaemonAI/venv/bin/python3 client_license_cli.py install <your-license-key>
+```
+
 ### Checking License Status
 ```bash
 python license_cli.py validate

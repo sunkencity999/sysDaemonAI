@@ -165,3 +165,6 @@ local_settings.py
 keys/private_key.pem
 # Ignore license file
 .sysdaemonai/license.dat
+
+# Ignore administrator CLI
+license_cli.py

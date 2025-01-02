@@ -7,6 +7,7 @@ from datetime import datetime
 def main():
     parser = argparse.ArgumentParser(description='SysDaemon AI License Manager')
     subparsers = parser.add_subparsers(dest='command', help='Commands')
+    parser.add_argument('--help', action='help', help='Show this help message and exit')
 
     # Generate command
     generate_parser = subparsers.add_parser('generate', help='Generate a new license key')
@@ -37,7 +38,10 @@ def main():
             print("1. Share this license key with your customer")
             print("2. Customer should run: python license_cli.py install <license_key>")
         except Exception as e:
-            print(f"Error generating license: {e}", file=sys.stderr)
+            if "Invalid tier" in str(e):
+                print("Error: Invalid tier specified. Available tiers: individual, professional, enterprise, administrator.", file=sys.stderr)
+            else:
+                print(f"Error generating license: {e}", file=sys.stderr)
             sys.exit(1)
 
     elif args.command == 'install':
@@ -65,6 +69,8 @@ def main():
                 print(f"Expires: {result['expires_at']}")
             else:
                 print(f"\nLicense is invalid: {result.get('error', 'Unknown error')}", file=sys.stderr)
+                print("Please run the install command with a valid license key:")
+                print("python license_cli.py install <your-license-key>")
                 sys.exit(1)
         except Exception as e:
             print(f"Error validating license: {e}", file=sys.stderr)
@@ -79,6 +85,8 @@ def main():
                 print(f"Expires: {info['expires_at']}")
             else:
                 print("\nNo valid license found", file=sys.stderr)
+                print("Please run the install command with a valid license key:")
+                print("python license_cli.py install <your-license-key>")
                 sys.exit(1)
         except Exception as e:
             print(f"Error getting license info: {e}", file=sys.stderr)
