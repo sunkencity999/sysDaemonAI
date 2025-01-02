@@ -169,5 +169,5 @@ keys/private_key.pem
 # Ignore administrator CLI
 license_cli.py
 
-# Ignore license manager CLI
-license_manager.py
+# Remove license manager from gitignore
+# license_manager.py
