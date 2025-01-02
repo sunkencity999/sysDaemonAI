@@ -4,6 +4,9 @@ import os
 from pathlib import Path
 import subprocess
 import logging
+import tkinter as tk
+from license_manager import LicenseManager
+from license_dialog import LicenseDialog
 from monitor_startup import MonitoringSystem
 
 def setup_logging():
@@ -35,11 +38,26 @@ def check_environment():
             logger.info(f"Creating {dir_name} directory")
             dir_path.mkdir(parents=True)
 
+def check_license():
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    dialog = LicenseDialog(root)
+    root.wait_window(dialog)  # Wait for the dialog to close
+    root.destroy()
+
 def main():
     """Main entry point for the application"""
     logger = setup_logging()
     
     try:
+        # Check license first
+        lm = LicenseManager()
+        if not lm.get_license_info():
+            logger.warning("No valid license found. Prompting for license...")
+            check_license()
+        else:
+            logger.info("Valid license found. Proceeding with application startup...")
+        
         # Check environment
         check_environment()
         

@@ -86,11 +86,9 @@ temp/
 # API and security files
 .env
 *.pem
-*.key
 *.crt
 *.cer
 *.der
-*.priv
 *.pub
 
 # Test files
@@ -162,3 +160,8 @@ config.local.yaml
 *.local.yaml
 *.local.yml
 local_settings.py
+
+# Ignore licensing keys
+keys/private_key.pem
+# Ignore license file
+.sysdaemonai/license.dat

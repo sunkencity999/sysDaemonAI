@@ -394,6 +394,26 @@ EOL
         handle_error "requirements.txt not found"
     fi
     
+    # License check
+    print_status "yellow" "Checking license..."
+    python3 - << EOF
+from license_manager import LicenseManager
+from license_dialog import LicenseDialog
+import tkinter as tk
+
+def check_license():
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    dialog = LicenseDialog(root)
+    root.wait_window(dialog)  # Wait for the dialog to close
+    root.destroy()
+
+if __name__ == '__main__':
+    lm = LicenseManager()
+    if not lm.get_license_info():
+        check_license()
+EOF
+    
     # Create and setup directories
     create_checkpoint "directory_setup"
     for dir in "data" "logs" "exports"; do

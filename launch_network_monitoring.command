@@ -121,8 +121,24 @@ start_monitoring() {
     sudo -E "$VENV_PYTHON" -m network_monitor.network_gui
 }
 
+# Function to check license
+check_license() {
+    echo "Checking license..."
+    # Run the Python script to check for a valid license
+    /Users/christopher.bradford/sysDaemonAI/venv/bin/python3 license_cli.py info
+    if [ $? -ne 0 ]; then
+        echo "No valid license found. Please install a license before proceeding."
+        exit 1
+    else
+        echo "Valid license found. Proceeding with application startup..."
+    fi
+}
+
 # Main execution
 echo "Initializing network monitoring system..."
+
+# Check license first
+check_license
 
 # Check if already running first
 check_running
