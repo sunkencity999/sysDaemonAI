@@ -168,3 +168,6 @@ keys/private_key.pem
 
 # Ignore administrator CLI
 license_cli.py
+
+# Ignore license manager CLI
+license_manager.py
