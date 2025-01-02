@@ -125,7 +125,6 @@ A powerful system monitoring and security suite powered by advanced AI technolog
 - **TensorFlow/Keras**: Machine learning models
 - **scikit-learn**: Statistical analysis
 - **Natural Language Processing**: Command interpretation
-- **Codeium AI**: Advanced code analysis and threat detection
 
 ### APIs and External Services
 - **VirusTotal API**: Cloud-based threat intelligence
