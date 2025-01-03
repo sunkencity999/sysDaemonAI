@@ -125,7 +125,7 @@ start_monitoring() {
 check_license() {
     echo "Checking license..."
     # Run the Python script to check for a valid license
-    /Users/christopher.bradford/sysDaemonAI/venv/bin/python3 license_cli.py info
+    /Users/christopher.bradford/sysDaemonAI/venv/bin/python3 client_license_cli.py info
     if [ $? -ne 0 ]; then
         echo "No valid license found. Please install a license before proceeding."
         exit 1

@@ -117,6 +117,7 @@ docs/generated/
 *~
 *.swp
 *.swo
+backups/
 
 # Compiled files
 *.com

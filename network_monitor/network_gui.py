@@ -11,6 +11,7 @@ import getpass
 import traceback
 import subprocess
 import shutil
+import pandas as pd
 from datetime import datetime, timedelta
 from scapy.all import sniff, AsyncSniffer, get_if_list, conf, ETH_P_ALL, TCP, UDP
 from scapy.utils import PcapWriter
@@ -20,7 +21,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                           QProgressBar, QFrame, QStatusBar, QHBoxLayout, QTextEdit,
                           QTabWidget, QSplitter, QToolBar, QMenu, QDialog,
                           QDialogButtonBox, QGroupBox, QFormLayout, QHeaderView,
-                          QGridLayout, QDateTimeEdit, QSystemTrayIcon, QCheckBox)
+                          QGridLayout, QDateTimeEdit, QSystemTrayIcon, QCheckBox, QPlainTextEdit)
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QSize, QDateTime
 from PyQt6.QtGui import (QPainter, QColor, QPen, QBrush, QAction, QPalette, QIcon,
                        QLinearGradient, QImage)
@@ -679,6 +680,10 @@ class NetworkMonitorGUI(QMainWindow):
             # Create and add Packet Capture tab
             self.packet_capture_tab = self.setup_packet_capture_tab()
             self.tabs.addTab(self.packet_capture_tab, "Packet Capture")
+            
+            # Create and add Terminal tab
+            self.terminal_tab = self.setup_terminal_tab()
+            self.tabs.addTab(self.terminal_tab, "Terminal")
             
             # Initialize AI agents and their tabs
             self.init_ai_agents()
@@ -2891,7 +2896,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             
             # Export network connections
             logging.debug("Collecting network connection data...")
-            with self.db_manager.session_scope() as session:
+            with self.db_manager.get_session() as session:
                 seven_days_ago = datetime.now() - timedelta(days=7)
                 connections = session.query(NetworkConnection).filter(
                     NetworkConnection.timestamp >= seven_days_ago
@@ -2942,7 +2947,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             
             # Export threat data
             logging.debug("Collecting threat data...")
-            with self.db_manager.session_scope() as session:
+            with self.db_manager.get_session() as session:
                 threats = session.query(Threat).filter(
                     Threat.timestamp >= seven_days_ago
                 ).order_by(Threat.timestamp.desc()).all()
@@ -2977,7 +2982,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             ai_analysis_data.append(current_analysis)
             
             # Get historical daily reports from database
-            with self.db_manager.session_scope() as session:
+            with self.db_manager.get_session() as session:
                 reports = session.query(Alert).filter(
                     Alert.alert_type == 'AI_REPORT',
                     Alert.timestamp >= seven_days_ago
@@ -4036,6 +4041,87 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             self._handle_general_error(error_msg)
             # Revert checkbox state
             self.startup_checkbox.setChecked(self._is_launch_agent_enabled())
+
+    def setup_terminal_tab(self):
+        """Setup the terminal tab with command execution and cancellation functionality"""
+        layout = QVBoxLayout()
+
+        # Terminal output area
+        self.terminal_output = QPlainTextEdit()
+        self.terminal_output.setReadOnly(True)
+        layout.addWidget(self.terminal_output)
+
+        # Terminal input area
+        self.terminal_input = QLineEdit()
+        self.terminal_input.setPlaceholderText('Enter command...')
+        layout.addWidget(self.terminal_input)
+
+        # Add a checkbox for running commands as a regular user
+        self.run_as_user_checkbox = QCheckBox('Run as regular user')
+        self.run_as_user_checkbox.setChecked(False)  # Default is unchecked (run with sudo)
+        layout.addWidget(self.run_as_user_checkbox)
+
+        # Execute button
+        execute_button = QPushButton('Execute')
+        execute_button.clicked.connect(self.execute_command)
+        layout.addWidget(execute_button)
+
+        # Cancel button
+        cancel_button = QPushButton('Cancel')
+        cancel_button.clicked.connect(self.cancel_command)
+        layout.addWidget(cancel_button)
+
+        tab = QWidget()
+        tab.setLayout(layout)
+        return tab
+
+
+    def execute_command(self):
+      command = self.terminal_input.text()
+      if command:
+        # If the checkbox is checked, run as the current user
+        if self.run_as_user_checkbox.isChecked():
+            current_user = getpass.getuser()  # Get the current user's name
+            command = f"su - {current_user} -c '{command}'"  # Run command as current user
+        # Command will run with sudo by default if checkbox is unchecked
+        self.terminal_output.appendPlainText(f'> {command}')  # Display the command
+        self.command_thread = CommandThread(command)
+        self.command_thread.output_signal.connect(self.update_terminal_output)
+        self.command_thread.finished_signal.connect(self.command_finished)
+        self.command_thread.start()
+        self.terminal_input.clear()  # Clear the input field after execution
+
+    def update_terminal_output(self, output):
+        self.terminal_output.appendPlainText(output)  # Display command output in terminal
+
+    def command_finished(self):
+        self.terminal_output.appendPlainText('Command execution finished.')
+
+    def cancel_command(self):
+        if hasattr(self, 'command_thread'):
+            self.command_thread.stop()
+            self.terminal_output.appendPlainText('Command execution canceled.')
+
+class CommandThread(QThread):
+    output_signal = pyqtSignal(str)
+    finished_signal = pyqtSignal()
+
+    def __init__(self, command):
+        super().__init__()
+        self.command = command
+        self.running = True
+
+    def run(self):
+        try:
+            output = subprocess.check_output(self.command, shell=True).decode('utf-8')
+            self.output_signal.emit(output)
+        except Exception as e:
+            self.output_signal.emit(f"Error executing command: {str(e)}")
+        finally:
+            self.finished_signal.emit()
+
+    def stop(self):
+        self.running = False
 
 def main():
     try:
