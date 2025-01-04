@@ -4168,8 +4168,13 @@ class CommandThread(QThread):
 
     def run(self):
         try:
-            output = subprocess.check_output(self.command, shell=True).decode('utf-8')
+            print(f"Running command: {self.command}")  # Debugging output
+            output = subprocess.check_output(self.command, shell=True, stderr=subprocess.STDOUT).decode('utf-8')
+            print(f"Command output: {output}")  # Debugging output
             self.output_signal.emit(output)
+        except subprocess.CalledProcessError as e:
+            print(f"Command failed with error: {e.output.decode('utf-8')}")  # Debugging output for errors
+            self.output_signal.emit(f"Error executing command: {e.output.decode('utf-8')}")
         except Exception as e:
             self.output_signal.emit(f"Error executing command: {str(e)}")
         finally:
