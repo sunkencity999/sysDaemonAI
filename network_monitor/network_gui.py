@@ -572,6 +572,8 @@ class NetworkMonitorGUI(QMainWindow):
     def show_main_window(self):
         """Show main window and close splash screen"""
         self.show()
+        self.raise_()
+        self.activateWindow()
         self.splash.close()
     
     def setup_ui(self):
@@ -4055,6 +4057,13 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         self.terminal_input = QLineEdit()
         self.terminal_input.setPlaceholderText('Enter command...')
         layout.addWidget(self.terminal_input)
+        
+        self.command_history = []  # List to store command history
+        self.command_history_index = -1  # Index for navigating command history
+
+        # Connect the terminal input to handle key events
+        self.terminal_input.returnPressed.connect(self.execute_command)
+        self.terminal_input.keyPressEvent = self.handle_key_press
 
         # Add a checkbox for running commands as a regular user
         self.run_as_user_checkbox = QCheckBox('Run as regular user')
@@ -4079,17 +4088,19 @@ It provides real-time monitoring, threat detection, and security intelligence ga
     def execute_command(self):
       command = self.terminal_input.text()
       if command:
-        # If the checkbox is checked, run as the current user
-        if self.run_as_user_checkbox.isChecked():
-            current_user = getpass.getuser()  # Get the current user's name
-            command = f"su - {current_user} -c '{command}'"  # Run command as current user
-        # Command will run with sudo by default if checkbox is unchecked
-        self.terminal_output.appendPlainText(f'> {command}')  # Display the command
-        self.command_thread = CommandThread(command)
-        self.command_thread.output_signal.connect(self.update_terminal_output)
-        self.command_thread.finished_signal.connect(self.command_finished)
-        self.command_thread.start()
-        self.terminal_input.clear()  # Clear the input field after execution
+          self.command_history.append(command)  # Store the command in history
+          self.command_history_index = len(self.command_history)  # Reset index for new commands
+          # If the checkbox is checked, run as the current user
+          if self.run_as_user_checkbox.isChecked():
+              current_user = getpass.getuser()  # Get the current user's name
+              command = f"su - {current_user} -c '{command}'"  # Run command as current user
+          # Command will run with sudo by default if checkbox is unchecked
+          self.terminal_output.appendPlainText(f'> {command}')  # Display the command
+          self.command_thread = CommandThread(command)
+          self.command_thread.output_signal.connect(self.update_terminal_output)
+          self.command_thread.finished_signal.connect(self.command_finished)
+          self.command_thread.start()
+          self.terminal_input.clear()  # Clear the input field after execution
 
     def update_terminal_output(self, output):
         self.terminal_output.appendPlainText(output)  # Display command output in terminal
@@ -4101,6 +4112,22 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         if hasattr(self, 'command_thread'):
             self.command_thread.stop()
             self.terminal_output.appendPlainText('Command execution canceled.')
+
+    def handle_key_press(self, event):
+        """Handle key press events in the terminal input"""
+        if event.key() == Qt.Key.Key_Up:
+            # Navigate to the previous command
+            if self.command_history_index > 0:
+                self.command_history_index -= 1
+                self.terminal_input.setText(self.command_history[self.command_history_index])
+        elif event.key() == Qt.Key.Key_Down:
+            # Navigate to the next command
+            if self.command_history_index < len(self.command_history) - 1:
+                self.command_history_index += 1
+                self.terminal_input.setText(self.command_history[self.command_history_index])
+        else:
+            # Call the default key press event handler for other keys
+            QLineEdit.keyPressEvent(self.terminal_input, event)
 
 class CommandThread(QThread):
     output_signal = pyqtSignal(str)
