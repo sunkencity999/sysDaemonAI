@@ -20,7 +20,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                           QTableWidget, QTableWidgetItem, QMessageBox, QFileDialog,
                           QProgressBar, QFrame, QStatusBar, QHBoxLayout, QTextEdit,
                           QTabWidget, QSplitter, QToolBar, QMenu, QDialog,
-                          QDialogButtonBox, QGroupBox, QFormLayout, QHeaderView,
+                          QDialogButtonBox, QGroupBox, QFormLayout, QHeaderView, QListWidget,
                           QGridLayout, QDateTimeEdit, QSystemTrayIcon, QCheckBox, QPlainTextEdit)
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QSize, QDateTime
 from PyQt6.QtGui import (QPainter, QColor, QPen, QBrush, QAction, QPalette, QIcon,
@@ -4061,6 +4061,11 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         self.command_history = []  # List to store command history
         self.command_history_index = -1  # Index for navigating command history
 
+        # Initialize the completion widget
+        self.completion_widget = QListWidget()
+        self.completion_widget.setVisible(False)
+        layout.addWidget(self.completion_widget)
+
         # Connect the terminal input to handle key events
         self.terminal_input.returnPressed.connect(self.execute_command)
         self.terminal_input.keyPressEvent = self.handle_key_press
@@ -4125,9 +4130,32 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             if self.command_history_index < len(self.command_history) - 1:
                 self.command_history_index += 1
                 self.terminal_input.setText(self.command_history[self.command_history_index])
+        elif event.key() == Qt.Key.Key_Tab:
+            # Trigger auto-completion
+            self.show_completions()
         else:
             # Call the default key press event handler for other keys
             QLineEdit.keyPressEvent(self.terminal_input, event)
+
+    def show_completions(self):
+        """Show auto-completion suggestions based on the current input"""
+        current_text = self.terminal_input.text()
+        completions = self.get_completions(current_text)
+        if completions:
+            self.completion_widget.clear()
+            self.completion_widget.addItems(completions)
+            self.completion_widget.setVisible(True)
+            self.completion_widget.setGeometry(self.terminal_input.x(), self.terminal_input.y() + self.terminal_input.height(), self.terminal_input.width(), 100)  # Adjust size as needed
+            self.completion_widget.show()
+        else:
+            self.completion_widget.setVisible(False)
+
+    def get_completions(self, text):
+        """Return a list of possible completions based on the current input"""
+        possible_commands = ["ls", "cd", "mkdir", "rm", "touch", "echo"]
+        completions = [cmd for cmd in possible_commands if cmd.startswith(text)]
+        print(f"Possible completions for '{text}': {completions}")  # Debugging output
+        return completions
 
 class CommandThread(QThread):
     output_signal = pyqtSignal(str)
