@@ -4085,6 +4085,11 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         cancel_button.clicked.connect(self.cancel_command)
         layout.addWidget(cancel_button)
 
+        # Clear button
+        clear_button = QPushButton('Clear')
+        clear_button.clicked.connect(self.clear_terminal)
+        layout.addWidget(clear_button)
+
         tab = QWidget()
         tab.setLayout(layout)
         return tab
@@ -4111,7 +4116,8 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         self.terminal_output.appendPlainText(output)  # Display command output in terminal
 
     def command_finished(self):
-        self.terminal_output.appendPlainText('Command execution finished.')
+        self.terminal_output.appendPlainText('Command execution finished.')  # Notify user when command execution is complete
+        self.show_notification("Command Complete", "Command execution finished successfully")
 
     def cancel_command(self):
         if hasattr(self, 'command_thread'):
@@ -4120,7 +4126,11 @@ It provides real-time monitoring, threat detection, and security intelligence ga
 
     def handle_key_press(self, event):
         """Handle key press events in the terminal input"""
-        if event.key() == Qt.Key.Key_Up:
+        if event.key() == Qt.Key.Key_Return:
+            self.execute_command()  # Execute command on Enter key
+        elif event.key() == Qt.Key.Key_Escape:
+            self.terminal_input.clear()  # Clear input on Escape key
+        elif event.key() == Qt.Key.Key_Up:
             # Navigate to the previous command
             if self.command_history_index > 0:
                 self.command_history_index -= 1
@@ -4157,6 +4167,11 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         print(f"Possible completions for '{text}': {completions}")  # Debugging output
         return completions
 
+    def clear_terminal(self):
+        """Clear the terminal output"""
+        self.terminal_output.clear()
+        self.show_notification("Success", "Terminal cleared")
+
 class CommandThread(QThread):
     output_signal = pyqtSignal(str)
     finished_signal = pyqtSignal()
@@ -4165,15 +4180,17 @@ class CommandThread(QThread):
         super().__init__()
         self.command = command
         self.running = True
+        self.process = None  # Store the process reference
 
     def run(self):
         try:
             print(f"Running command: {self.command}")  # Debugging output
-            output = subprocess.check_output(self.command, shell=True, stderr=subprocess.STDOUT).decode('utf-8')
-            print(f"Command output: {output}")  # Debugging output
-            self.output_signal.emit(output)
+            self.process = subprocess.Popen(self.command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            for output in iter(self.process.stdout.readline, b''):
+                self.output_signal.emit(output.decode().strip())  # Emit output to the GUI
+            self.process.stdout.close()
+            self.process.wait()  # Wait for the process to complete
         except subprocess.CalledProcessError as e:
-            print(f"Command failed with error: {e.output.decode('utf-8')}")  # Debugging output for errors
             self.output_signal.emit(f"Error executing command: {e.output.decode('utf-8')}")
         except Exception as e:
             self.output_signal.emit(f"Error executing command: {str(e)}")
@@ -4182,6 +4199,8 @@ class CommandThread(QThread):
 
     def stop(self):
         self.running = False
+        if self.process:
+            self.process.terminate()
 
 def main():
     try:
