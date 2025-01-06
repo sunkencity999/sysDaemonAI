@@ -27,9 +27,6 @@ from PyQt6.QtGui import (QPainter, QColor, QPen, QBrush, QAction, QPalette, QIco
                        QLinearGradient, QImage)
 from PyQt6.QtCharts import (QChart, QChartView, QPieSeries, QLineSeries, 
                            QValueAxis, QPieSlice)
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import numpy as np
 import time
 import getpass
@@ -37,9 +34,11 @@ import random
 from network_monitor import NetworkMonitor
 from data_analyzer import DataAnalyzer
 from database import DatabaseManager, Threat, SystemMetrics, NetworkConnection, Alert
+import matplotlib
+matplotlib.use('qtagg')
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 import numpy as np
 import socket
 import time
@@ -473,6 +472,16 @@ class NetworkMonitorGUI(QMainWindow):
         )
         
         try:
+            # Show login dialog first
+            from login_dialog import LoginDialog
+            login_dialog = LoginDialog(self)
+            if login_dialog.exec() != QDialog.DialogCode.Accepted:
+                self.logger.info("Login cancelled or failed")
+                sys.exit(0)
+            
+            # Store the JWT token
+            self.auth_token = login_dialog.auth_token
+            
             # Import config
             import config
             self.config = config
@@ -4203,73 +4212,24 @@ class CommandThread(QThread):
             self.process.terminate()
 
 def main():
+    # Create QApplication instance first
+    app = QApplication(sys.argv)
+    
     try:
-        print("Starting application...")
-        
-        # Hide dock icon using PyObjC
-        try:
-            from Foundation import NSBundle
-            bundle = NSBundle.mainBundle()
-            info = bundle.localizedInfoDictionary() or bundle.infoDictionary()
-            if info is not None:
-                info['LSUIElement'] = '1'
-        except ImportError:
-            print("PyObjC not available, dock icon may still show")
-        
-        app = QApplication(sys.argv)
-        app.setQuitOnLastWindowClosed(False)  # Prevent app from quitting when window is closed
-        
-        # Set the application to be an accessory app (no dock icon)
-        app.setProperty("APPLE_ACCESSOR_APP", 1)
-        
-        # Set dark theme
-        print("Setting up dark theme...")
+        # Set application style
         app.setStyle('Fusion')
-        palette = QPalette()
         
-        # Define colors
-        window_color = QColor(45, 45, 45)
-        text_color = QColor(224, 224, 224)
-        base_color = QColor(30, 30, 30)
-        alt_base_color = QColor(53, 53, 53)
-        highlight_color = QColor(42, 130, 218)
-        
-        # Set colors for all color roles
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.Window, window_color)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.WindowText, text_color)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.Base, base_color)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.AlternateBase, alt_base_color)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.ToolTipBase, text_color)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.ToolTipText, text_color)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.Text, text_color)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.Button, alt_base_color)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.ButtonText, text_color)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.BrightText, Qt.GlobalColor.white)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.Link, highlight_color)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.Highlight, highlight_color)
-        palette.setColor(QPalette.ColorGroup.All, QPalette.ColorRole.HighlightedText, Qt.GlobalColor.black)
-        
-        app.setPalette(palette)
-        print("Dark theme set")
-        
-        # Create main window
+        # Create and show main window
         window = NetworkMonitorGUI()
-        print("Main window created")
-        window.setWindowIcon(app.windowIcon())  # Explicitly set window icon
         window.show()
-        print("Window shown")
-        print("Starting event loop...")
+        
+        # Start Qt event loop
         return app.exec()
+        
     except Exception as e:
-        print(f"Error in main: {str(e)}")
-        traceback.print_exc()
+        logging.error(f"Error in main: {str(e)}")
+        QMessageBox.critical(None, "Error", f"Failed to start application: {str(e)}")
         return 1
 
 if __name__ == '__main__':
-    print("Starting main...")
-    try:
-        sys.exit(main())
-    except Exception as e:
-        print(f"Fatal error: {str(e)}")
-        traceback.print_exc()
-        sys.exit(1)
+    sys.exit(main())

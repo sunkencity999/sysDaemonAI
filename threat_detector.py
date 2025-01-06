@@ -49,11 +49,62 @@ class ThreatDetector:
             22: "SSH",
             23: "Telnet",
             445: "SMB",
+            3389: "RDP",
             1433: "MSSQL",
             3306: "MySQL",
-            3389: "RDP",
-            5900: "VNC"
+            5432: "PostgreSQL",
+            6379: "Redis",
+            27017: "MongoDB",
+            9200: "Elasticsearch",
+            8080: "HTTP Alternate",
+            8443: "HTTPS Alternate",
+            21: "FTP",
+            25: "SMTP",
+            53: "DNS",
+            67: "DHCP",
+            161: "SNMP",
+            389: "LDAP",
+            636: "LDAPS",
+            1521: "Oracle",
+            5601: "Kibana",
+            9000: "Portainer",
+            6443: "Kubernetes API",
+            2379: "etcd",
+            5000: "Docker Registry",
+            9090: "Prometheus",
+            9093: "Alertmanager",
+            9100: "Node Exporter"
         }
+        
+        # Initialize threat intelligence feeds
+        self.threat_feeds = [
+            "https://rules.emergingthreats.net/blockrules/compromised-ips.txt",
+            "https://www.spamhaus.org/drop/drop.txt",
+            "https://check.torproject.org/exit-addresses",
+            "https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level1.netset"
+        ]
+        
+        # Load threat intelligence data
+        self.known_threats = self._load_threat_intel()
+        
+        # Initialize behavioral analysis
+        self.connection_history = collections.defaultdict(list)
+        self.behavioral_patterns = {
+            'data_exfiltration': {
+                'threshold': 50000000,  # 50MB
+                'window': 300  # 5 minutes
+            },
+            'brute_force': {
+                'threshold': 10,  # attempts
+                'window': 60  # 1 minute
+            },
+            'lateral_movement': {
+                'threshold': 5,  # internal hosts
+                'window': 300  # 5 minutes
+            }
+        }
+        
+        # Failed authentication detection
         self.failed_auth_threshold = 5
         self.auth_attempts = collections.defaultdict(int)
         
@@ -357,3 +408,20 @@ class ThreatDetector:
             self.logger.warning(f"Potential port scan detected from {ip}: {unique_ports} ports in {self.port_scan_window}s")
             return True
         return False
+
+    def _load_threat_intel(self) -> Set[str]:
+        """
+        Load threat intelligence data from configured feeds.
+        Returns a set of known malicious IPs.
+        """
+        known_threats = set()
+        
+        for feed in self.threat_feeds:
+            try:
+                response = requests.get(feed)
+                response.raise_for_status()
+                known_threats.update(response.text.splitlines())
+            except requests.RequestException as e:
+                self.logger.error(f"Failed to load threat intel from {feed}: {e}")
+        
+        return known_threats

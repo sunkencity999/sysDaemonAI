@@ -501,6 +501,60 @@ Base.metadata.create_all(engine)
     print_status "yellow" "3. Set your AbuseIPDB API key in the config file for threat detection"
     print_status "yellow" "4. The application will run with elevated privileges for packet capture"
     print_status "yellow" "5. Check the logs directory for any issues"
+    
+    # Enterprise security features and authentication setup
+    print_status "yellow" "Setting up enterprise security features and authentication..."
+    pip install PyJWT bcrypt || handle_error "Failed to install enterprise security packages"
+    python3 setup_database.py || handle_error "Failed to initialize database"
+    python3 setup_admin.py || handle_error "Failed to create admin user"
+    mkdir -p logs || handle_error "Failed to create logs directory"
+    chmod 755 logs || handle_error "Failed to set logs directory permissions"
+    for dir in "rules" "data" "exports" "backups" "quarantine"; do
+        mkdir -p "$dir" || handle_error "Failed to create $dir directory"
+        chmod 755 "$dir" || handle_error "Failed to set $dir directory permissions"
+    done
+    chmod 644 *.py || handle_error "Failed to set Python file permissions"
+    chmod 755 *.sh || handle_error "Failed to set shell script permissions"
+    
+    # macOS specific setup
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        print_status "yellow" "Performing macOS-specific setup..."
+        mkdir -p ~/Library/LaunchAgents || handle_error "Failed to create launch agents directory"
+        cp com.sysdaemonai.plist ~/Library/LaunchAgents/ || handle_error "Failed to copy launch agent plist"
+        chmod 644 ~/Library/LaunchAgents/com.sysdaemonai.plist || handle_error "Failed to set launch agent plist permissions"
+        print_status "yellow" "To enable automatic startup, run: launchctl load ~/Library/LaunchAgents/com.sysdaemonai.plist"
+    fi
+    
+    # Create desktop shortcut (if on Linux)
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        print_status "yellow" "Creating desktop shortcut..."
+        cat > ~/.local/share/applications/sysdaemonai.desktop << EOL
+[Desktop Entry]
+Name=SysDaemon AI
+Comment=Enterprise Security Suite
+Exec=$(pwd)/launch.sh
+Icon=$(pwd)/icons/sysdaemon.png
+Terminal=false
+Type=Application
+Categories=Security;System;
+EOL
+    fi
+    
+    print_status "green" "Enterprise security features and authentication setup complete!"
+    print_status "yellow" "Default admin credentials:"
+    print_status "yellow" "Username: Admin"
+    print_status "yellow" "Password: sysdaemonAI"
+    print_warning "IMPORTANT: Please change the default admin password after first login"
+    
+    # Print next steps
+    echo ""
+    echo "Next steps:"
+    echo "1. Start the application: ./launch.sh"
+    echo "2. Log in with the default admin credentials"
+    echo "3. Change the default admin password"
+    echo "4. Configure additional users and roles as needed"
+    echo ""
+    print_warning "For enterprise deployment, please refer to the Enterprise Deployment Guide in the documentation"
 }
 
 # Run main installation

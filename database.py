@@ -3,7 +3,7 @@ import os
 import logging
 from contextlib import contextmanager
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, JSON, ForeignKey, Index
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, JSON, ForeignKey, Index, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, scoped_session
 from sqlalchemy.pool import QueuePool
@@ -92,6 +92,14 @@ class DatabaseManager:
         # Initialize logging
         self.logger = logging.getLogger(__name__)
         
+        # Use home directory for database
+        home_dir = os.path.expanduser("~")
+        data_dir = os.path.join(home_dir, '.sysdaemonai', 'data')
+        os.makedirs(data_dir, exist_ok=True)
+        
+        # Database path
+        self.db_path = os.path.join(data_dir, 'sysdaemon.db')
+        
         # Configure database settings
         self.max_retries = 3
         self.retry_delay = 1  # seconds
@@ -104,10 +112,6 @@ class DatabaseManager:
             'alerts': 365,  # 1 year
             'threats': 365  # 1 year
         }
-        
-        # Setup database path
-        self.db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'sysdaemon.db')
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         
         # Configure the engine with optimized pooling
         self.engine = create_engine(
@@ -350,6 +354,45 @@ class DatabaseManager:
         except Exception as e:
             self.logger.error(f"Failed to record threat: {str(e)}")
             raise
+    
+    def execute(self, query: str, params: dict = None):
+        """Execute a query with parameters"""
+        try:
+            with self.engine.connect() as conn:
+                if params:
+                    conn.execute(text(query), [params])
+                else:
+                    conn.execute(text(query))
+                conn.commit()
+        except Exception as e:
+            self.logger.error(f"Database error in execute: {str(e)}")
+            raise
+            
+    def fetch_one(self, query: str, params: dict = None) -> Optional[tuple]:
+        """Execute a SELECT query and return a single row"""
+        try:
+            with self.engine.connect() as conn:
+                if params:
+                    result = conn.execute(text(query), [params])
+                else:
+                    result = conn.execute(text(query))
+                return result.fetchone()
+        except Exception as e:
+            self.logger.error(f"Database error in fetch_one: {str(e)}")
+            return None
+            
+    def fetch_all(self, query: str, params: dict = None) -> List[tuple]:
+        """Execute a SELECT query and return all rows"""
+        try:
+            with self.engine.connect() as conn:
+                if params:
+                    result = conn.execute(text(query), [params])
+                else:
+                    result = conn.execute(text(query))
+                return result.fetchall()
+        except Exception as e:
+            self.logger.error(f"Database error in fetch_all: {str(e)}")
+            return []
     
     def __del__(self):
         """Ensure all batches are flushed before destroying the object."""
