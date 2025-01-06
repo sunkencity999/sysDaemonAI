@@ -4353,6 +4353,13 @@ It provides real-time monitoring, threat detection, and security intelligence ga
                 actions_layout = QHBoxLayout(actions_widget)
                 actions_layout.setContentsMargins(4, 4, 4, 4)
                 
+                # Change Password Button
+                change_pwd_btn = QPushButton("Change Password")
+                change_pwd_btn.setStyleSheet("background-color: #4a9eff; color: white;")
+                change_pwd_btn.clicked.connect(lambda _, u=username: self.show_change_password_dialog(u))
+                actions_layout.addWidget(change_pwd_btn)
+                
+                # Delete Button
                 delete_btn = QPushButton("Delete")
                 delete_btn.setStyleSheet("background-color: #ff4444; color: white;")
                 delete_btn.clicked.connect(lambda _, u=username: self.delete_user(u))
@@ -4478,6 +4485,54 @@ It provides real-time monitoring, threat detection, and security intelligence ga
                 "Success",
                 f"Updated permissions for {role} role\n(Note: This is a mock implementation)"
             )
+    def show_change_password_dialog(self, username: str):
+        """Show dialog to change a user's password"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"Change Password for {username}")
+        dialog.setModal(True)
+        
+        layout = QFormLayout(dialog)
+        
+        # New password input
+        new_password = QLineEdit()
+        new_password.setEchoMode(QLineEdit.EchoMode.Password)
+        layout.addRow("New Password:", new_password)
+        
+        # Confirm password input
+        confirm_password = QLineEdit()
+        confirm_password.setEchoMode(QLineEdit.EchoMode.Password)
+        layout.addRow("Confirm Password:", confirm_password)
+        
+        # Buttons
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | 
+            QDialogButtonBox.StandardButton.Cancel
+        )
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        layout.addRow(button_box)
+        
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            password = new_password.text()
+            confirm = confirm_password.text()
+            
+            if not password:
+                QMessageBox.warning(self, "Error", "Password cannot be empty")
+                return
+                
+            if password != confirm:
+                QMessageBox.warning(self, "Error", "Passwords do not match")
+                return
+                
+            try:
+                # Update the password using auth_manager
+                if self.auth_manager.update_password(username, password):
+                    QMessageBox.information(self, "Success", f"Password updated for user {username}")
+                else:
+                    QMessageBox.warning(self, "Error", "Failed to update password")
+            except Exception as e:
+                self.logger.error(f"Error updating password: {str(e)}")
+                QMessageBox.critical(self, "Error", f"Failed to update password: {str(e)}")
 
 class CommandThread(QThread):
     output_signal = pyqtSignal(str)
@@ -4537,3 +4592,4 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+

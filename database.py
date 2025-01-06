@@ -355,18 +355,19 @@ class DatabaseManager:
             self.logger.error(f"Failed to record threat: {str(e)}")
             raise
     
-    def execute(self, query: str, params: dict = None):
+    def execute(self, query: str, params: dict = None) -> bool:
         """Execute a query with parameters"""
         try:
             with self.engine.connect() as conn:
                 if params:
-                    conn.execute(text(query), [params])
+                    result = conn.execute(text(query), [params])
                 else:
-                    conn.execute(text(query))
+                    result = conn.execute(text(query))
                 conn.commit()
+                return True  # Return True to indicate success
         except Exception as e:
             self.logger.error(f"Database error in execute: {str(e)}")
-            raise
+            return False  # Return False to indicate failure
             
     def fetch_one(self, query: str, params: dict = None) -> Optional[tuple]:
         """Execute a SELECT query and return a single row"""

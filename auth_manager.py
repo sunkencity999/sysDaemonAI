@@ -121,3 +121,42 @@ class AuthManager:
     def register(self, username: str, password: str) -> bool:
         """Register a new user with default role 'viewer'"""
         return self.create_user(username, password, role='viewer')
+
+    def update_password(self, username: str, new_password: str) -> bool:
+        """Update a user's password"""
+        try:
+            # First check if user exists
+            user = self.db_manager.fetch_one(
+                "SELECT username FROM users WHERE username = :username",
+                {"username": username}
+            )
+            
+            if not user:
+                self.logger.warning(f"Cannot update password: User {username} not found")
+                return False
+            
+            # Hash new password with bcrypt
+            salt = bcrypt.gensalt()
+            hashed = bcrypt.hashpw(new_password.encode(), salt)
+            
+            # Update in database
+            result = self.db_manager.execute(
+                """UPDATE users 
+                   SET password_hash = :password_hash 
+                   WHERE username = :username""",
+                {
+                    "username": username,
+                    "password_hash": hashed
+                }
+            )
+            
+            if result:
+                self.logger.info(f"Updated password for user: {username}")
+                return True
+            else:
+                self.logger.warning(f"Database update failed for user: {username}")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Failed to update password: {str(e)}")
+            return False
