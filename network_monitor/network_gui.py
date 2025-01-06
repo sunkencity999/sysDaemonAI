@@ -59,6 +59,7 @@ from ai_agents.defense_agent import DefenseAgent
 from ai_agents.crawler_agent import CrawlerAgent
 from agent_ui import AgentTabs
 import config
+from auth_manager import AuthManager
 
 class NetworkMonitorThread(QThread):
     connection_update = pyqtSignal(list)
@@ -492,6 +493,7 @@ class NetworkMonitorGUI(QMainWindow):
             # Create network monitor instance
             self.network_monitor = NetworkMonitor()
             self.db_manager = DatabaseManager()
+            self.auth_manager = AuthManager(self.db_manager)  # Initialize AuthManager
             
             # Show splash screen
             self.splash = SplashScreen()
@@ -699,6 +701,12 @@ class NetworkMonitorGUI(QMainWindow):
             # Initialize AI agents and their tabs
             self.init_ai_agents()
             self.tabs.addTab(self.agent_tabs, "AI Agents")
+            
+            # Add Admin tab if user has admin role
+            token_data = self.auth_manager.verify_token(self.auth_token)
+            if token_data and token_data.get('role') == 'admin':
+                self.admin_tab = self.setup_admin_tab()
+                self.tabs.addTab(self.admin_tab, "Admin")
             
             # Create bottom status bar
             self.statusBar = QMainWindow.statusBar(self)
@@ -4181,6 +4189,296 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         self.terminal_output.clear()
         self.show_notification("Success", "Terminal cleared")
 
+    def setup_admin_tab(self):
+        """Setup the admin tab with user and role management"""
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        
+        # Create a splitter for users and roles
+        splitter = QSplitter(Qt.Orientation.Horizontal)
+        
+        # Users Panel
+        users_widget = QWidget()
+        users_layout = QVBoxLayout(users_widget)
+        
+        # Users Table
+        users_group = QGroupBox("User Management")
+        users_group_layout = QVBoxLayout(users_group)
+        
+        self.users_table = QTableWidget()
+        self.users_table.setColumnCount(4)
+        self.users_table.setHorizontalHeaderLabels(["Username", "Role", "Created", "Actions"])
+        self.users_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        self.users_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        self.users_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        self.users_table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+        users_group_layout.addWidget(self.users_table)
+        
+        # User Actions
+        actions_layout = QHBoxLayout()
+        
+        # Add User Button
+        add_user_btn = QPushButton("Add User")
+        add_user_btn.clicked.connect(self.show_add_user_dialog)
+        actions_layout.addWidget(add_user_btn)
+        
+        # Refresh Button
+        refresh_btn = QPushButton("Refresh")
+        refresh_btn.clicked.connect(self.refresh_users_table)
+        actions_layout.addWidget(refresh_btn)
+        
+        users_group_layout.addLayout(actions_layout)
+        users_layout.addWidget(users_group)
+        
+        # Role Management Panel
+        roles_widget = QWidget()
+        roles_layout = QVBoxLayout(roles_widget)
+        
+        # Roles Table
+        roles_group = QGroupBox("Role Management")
+        roles_group_layout = QVBoxLayout(roles_group)
+        
+        self.roles_table = QTableWidget()
+        self.roles_table.setColumnCount(3)
+        self.roles_table.setHorizontalHeaderLabels(["Role", "Permissions", "Actions"])
+        self.roles_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        self.roles_table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.roles_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        roles_group_layout.addWidget(self.roles_table)
+        
+        roles_layout.addWidget(roles_group)
+        
+        # Add widgets to splitter
+        splitter.addWidget(users_widget)
+        splitter.addWidget(roles_widget)
+        splitter.setSizes([int(splitter.size().width() * 0.6), int(splitter.size().width() * 0.4)])
+        
+        layout.addWidget(splitter)
+        
+        # Initial data load
+        self.refresh_users_table()
+        self.refresh_roles_table()
+        
+        return tab
+
+    def show_add_user_dialog(self):
+        """Show dialog to add a new user"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Add New User")
+        dialog.setModal(True)
+        
+        layout = QFormLayout(dialog)
+        
+        # Username input
+        username_input = QLineEdit()
+        layout.addRow("Username:", username_input)
+        
+        # Password input
+        password_input = QLineEdit()
+        password_input.setEchoMode(QLineEdit.EchoMode.Password)
+        layout.addRow("Password:", password_input)
+        
+        # Role selection
+        role_combo = QComboBox()
+        role_combo.addItems(['viewer', 'analyst', 'admin'])
+        layout.addRow("Role:", role_combo)
+        
+        # Buttons
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | 
+            QDialogButtonBox.StandardButton.Cancel
+        )
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        layout.addRow(button_box)
+        
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            username = username_input.text()
+            password = password_input.text()
+            role = role_combo.currentText()
+            
+            if username and password:
+                try:
+                    if self.auth_manager.create_user(username, password, role):
+                        QMessageBox.information(self, "Success", "User created successfully")
+                        self.refresh_users_table()
+                    else:
+                        QMessageBox.warning(self, "Error", "Failed to create user")
+                except Exception as e:
+                    QMessageBox.critical(self, "Error", f"Error creating user: {str(e)}")
+            else:
+                QMessageBox.warning(self, "Error", "Username and password are required")
+
+    def refresh_users_table(self):
+        """Refresh the users table with current data"""
+        try:
+            users = self.db_manager.fetch_all(
+                """SELECT username, role, created_at 
+                   FROM users 
+                   ORDER BY created_at DESC"""
+            )
+            
+            self.users_table.setRowCount(len(users))
+            for row, (username, role, created_at) in enumerate(users):
+                # Username
+                self.users_table.setItem(row, 0, QTableWidgetItem(username))
+                
+                # Role
+                role_combo = QComboBox()
+                role_combo.addItems(['viewer', 'analyst', 'admin'])
+                role_combo.setCurrentText(role)
+                role_combo.currentTextChanged.connect(
+                    lambda text, username=username: self.update_user_role(username, text)
+                )
+                self.users_table.setCellWidget(row, 1, role_combo)
+                
+                # Created At
+                try:
+                    if isinstance(created_at, str):
+                        # Parse string to datetime if it's a string
+                        dt = datetime.strptime(created_at, '%Y-%m-%d %H:%M:%S')
+                        formatted_date = dt.strftime('%Y-%m-%d %H:%M')
+                    else:
+                        formatted_date = created_at.strftime('%Y-%m-%d %H:%M')
+                except (ValueError, AttributeError):
+                    # If parsing fails, just display the raw string
+                    formatted_date = str(created_at)
+                
+                created_item = QTableWidgetItem(formatted_date)
+                created_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.users_table.setItem(row, 2, created_item)
+                
+                # Actions
+                actions_widget = QWidget()
+                actions_layout = QHBoxLayout(actions_widget)
+                actions_layout.setContentsMargins(4, 4, 4, 4)
+                
+                delete_btn = QPushButton("Delete")
+                delete_btn.setStyleSheet("background-color: #ff4444; color: white;")
+                delete_btn.clicked.connect(lambda _, u=username: self.delete_user(u))
+                actions_layout.addWidget(delete_btn)
+                
+                self.users_table.setCellWidget(row, 3, actions_widget)
+                
+        except Exception as e:
+            self.logger.error(f"Error refreshing users table: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to load users: {str(e)}")
+
+    def refresh_roles_table(self):
+        """Refresh the roles table with current data"""
+        roles_data = [
+            ('admin', 'Full system access, user management'),
+            ('analyst', 'View and analyze data, run commands'),
+            ('viewer', 'View-only access to dashboards')
+        ]
+        
+        self.roles_table.setRowCount(len(roles_data))
+        for row, (role, permissions) in enumerate(roles_data):
+            # Role
+            role_item = QTableWidgetItem(role)
+            role_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.roles_table.setItem(row, 0, role_item)
+            
+            # Permissions
+            perm_item = QTableWidgetItem(permissions)
+            self.roles_table.setItem(row, 1, perm_item)
+            
+            # No actions for built-in roles
+            actions_widget = QWidget()
+            actions_layout = QHBoxLayout(actions_widget)
+            actions_layout.setContentsMargins(4, 4, 4, 4)
+            
+            if role != 'admin':  # Don't allow editing admin permissions
+                edit_btn = QPushButton("Edit")
+                edit_btn.clicked.connect(lambda _, r=role: self.edit_role_permissions(r))
+                actions_layout.addWidget(edit_btn)
+            
+            self.roles_table.setCellWidget(row, 2, actions_widget)
+
+    def update_user_role(self, username: str, new_role: str):
+        """Update a user's role"""
+        try:
+            if username == self.auth_manager.verify_token(self.auth_token).get('username'):
+                QMessageBox.warning(self, "Error", "Cannot modify your own role")
+                self.refresh_users_table()  # Refresh to revert the change
+                return
+                
+            self.db_manager.execute(
+                "UPDATE users SET role = :role WHERE username = :username",
+                {"role": new_role, "username": username}
+            )
+            QMessageBox.information(self, "Success", f"Updated role for user {username}")
+        except Exception as e:
+            self.logger.error(f"Error updating user role: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to update role: {str(e)}")
+            self.refresh_users_table()  # Refresh to revert the change
+
+    def delete_user(self, username: str):
+        """Delete a user"""
+        try:
+            if username == self.auth_manager.verify_token(self.auth_token).get('username'):
+                QMessageBox.warning(self, "Error", "Cannot delete your own account")
+                return
+                
+            reply = QMessageBox.question(
+                self, 'Confirm Delete',
+                f'Are you sure you want to delete user {username}?',
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            
+            if reply == QMessageBox.StandardButton.Yes:
+                self.db_manager.execute(
+                    "DELETE FROM users WHERE username = :username",
+                    {"username": username}
+                )
+                QMessageBox.information(self, "Success", f"Deleted user {username}")
+                self.refresh_users_table()
+        except Exception as e:
+            self.logger.error(f"Error deleting user: {str(e)}")
+            QMessageBox.critical(self, "Error", f"Failed to delete user: {str(e)}")
+
+    def edit_role_permissions(self, role: str):
+        """Show dialog to edit role permissions"""
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"Edit {role.title()} Permissions")
+        dialog.setModal(True)
+        
+        layout = QVBoxLayout(dialog)
+        
+        # Permissions checkboxes
+        permissions = {
+            'view_dashboard': 'View Dashboard',
+            'run_commands': 'Run Commands',
+            'export_data': 'Export Data',
+            'modify_settings': 'Modify Settings',
+            'view_logs': 'View Logs'
+        }
+        
+        checkboxes = {}
+        for perm_id, perm_name in permissions.items():
+            cb = QCheckBox(perm_name)
+            cb.setChecked(perm_id in ['view_dashboard'] if role == 'viewer'
+                         else perm_id in ['view_dashboard', 'run_commands', 'export_data', 'view_logs'])
+            checkboxes[perm_id] = cb
+            layout.addWidget(cb)
+        
+        # Buttons
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Save | 
+            QDialogButtonBox.StandardButton.Cancel
+        )
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        layout.addWidget(button_box)
+        
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            # In a real implementation, this would update the role permissions in the database
+            QMessageBox.information(
+                self,
+                "Success",
+                f"Updated permissions for {role} role\n(Note: This is a mock implementation)"
+            )
+
 class CommandThread(QThread):
     output_signal = pyqtSignal(str)
     finished_signal = pyqtSignal()
@@ -4210,6 +4508,12 @@ class CommandThread(QThread):
         self.running = False
         if self.process:
             self.process.terminate()
+
+    def clear_terminal(self):
+        """Clear the terminal output"""
+        self.terminal_output.clear()
+
+   
 
 def main():
     # Create QApplication instance first
