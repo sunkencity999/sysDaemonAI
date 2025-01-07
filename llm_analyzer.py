@@ -157,9 +157,15 @@ class LLMAnalyzer:
             elif not isinstance(prompt, str):
                 prompt = str(prompt)
             
-            model = OLLAMA_CONFIG.get('model', 'llama2:latest')
+            model_info = OLLAMA_CONFIG['model']  # Get the model info string
+            model_name = model_info.split()[0]  # Extract just the model name (first part)
+            self.logger.info(f"Using model: '{model_name}'")  # Log the model being used
+            
+            # Log the command being executed
+            command = ['ollama', 'run', model_name]  # Use the extracted model name
+            self.logger.info(f"Executing command: {command}")  # Log the command
             response = subprocess.run(
-                ['ollama', 'run', model],
+                command,
                 input=prompt,
                 capture_output=True,
                 text=True,
@@ -167,7 +173,7 @@ class LLMAnalyzer:
             )
             
             if response.returncode != 0:
-                self.logger.error(f"Ollama error with model {model}: {response.stderr}")
+                self.logger.error(f"Ollama error with model {model_name}: {response.stderr}")
                 raise Exception(f"Ollama error: {response.stderr}")
             
             # Get the raw text response
@@ -319,8 +325,15 @@ Please provide:
         """Get analysis from Ollama with enhanced error handling and retries"""
         try:
             # Run Ollama command - pass prompt directly, not as an argument
+            model_info = OLLAMA_CONFIG['model']  # Get the model info string
+            model_name = model_info.split()[0]  # Extract just the model name (first part)
+            self.logger.info(f"Using model: '{model_name}'")  # Log the model being used
+            
+            # Log the command being executed
+            command = ['ollama', 'run', model_name]  # Use the extracted model name
+            self.logger.info(f"Executing command: {command}")  # Log the command
             result = subprocess.run(
-                ["ollama", "run", OLLAMA_CONFIG['model']],
+                command,
                 input=prompt,
                 capture_output=True,
                 text=True,

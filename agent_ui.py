@@ -16,9 +16,10 @@ import queue
 from queue import Queue
 from datetime import datetime, timedelta
 from typing import Dict, Any
-from config import LOG_CONFIG
+from config import LOG_CONFIG, OLLAMA_CONFIG
 from virus_scanner import VirusScanner
 from virus_scanner_ui import ScanProgressDialog, ScanResultsDialog, ScanOptionsDialog
+import subprocess
 
 # Suppress Qt warnings about layer-backed views
 os.environ['QT_LOGGING_RULES'] = '*.debug=false;qt.qpa.*=false'
@@ -69,6 +70,7 @@ class AgentTabs(QWidget):
         self.agent_configs = agent_configs
         self.crawler_text = None
         self.logger = logging.getLogger(__name__)
+        self.load_model_config()  # Load the model configuration on startup
         
         # Create layout
         self.layout = QVBoxLayout(self)
@@ -80,6 +82,21 @@ class AgentTabs(QWidget):
         self.virus_scan_button = QPushButton("Virus Scan")
         self.virus_scan_button.clicked.connect(self.start_virus_scan)
         top_button_layout.addWidget(self.virus_scan_button)
+        
+        # Add model selection dropdown
+        self.model_selection_dropdown = QComboBox(self)
+        models = self.fetch_installed_models()
+        self.model_selection_dropdown.addItems(models)
+        # Set the current model based on OLLAMA_CONFIG
+        current_model = OLLAMA_CONFIG.get('model', models[0] if models else '')
+        if current_model in models:
+            self.model_selection_dropdown.setCurrentText(current_model)
+        self.model_selection_dropdown.currentIndexChanged.connect(self.update_selected_model)
+        top_button_layout.addWidget(self.model_selection_dropdown)
+        
+        # Add label to display the currently selected model
+        self.model_selection_label = QLabel(f"Current Model: {current_model}", self)
+        top_button_layout.addWidget(self.model_selection_label)
         
         # Add stretch to push buttons to the right
         top_button_layout.addStretch()
@@ -105,6 +122,17 @@ class AgentTabs(QWidget):
         self.log_refresh_timer.timeout.connect(self.refresh_logs)
         self.log_refresh_timer.start(300000)  # Refresh every 5 minutes instead of every minute
     
+    def load_model_config(self):
+        """Load the model configuration from a file."""
+        try:
+            with open('model_config.json', 'r') as f:
+                config = json.load(f)
+                OLLAMA_CONFIG['model'] = config.get('model', 'default_model')  # Set to a default model if not found
+        except FileNotFoundError:
+            self.logger.warning("Model configuration file not found. Using default model.")
+            with open('model_config.json', 'w') as f:
+                json.dump({'model': 'default_model'}, f)
+
     def setup_agent_tabs(self):
         """Create tabs for each AI agent."""
         self.create_log_monitor_tab()
@@ -787,6 +815,29 @@ class AgentTabs(QWidget):
         """Convert hex color to RGB values."""
         hex_color = hex_color.lstrip('#')
         return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+
+    def fetch_installed_models(self):
+        """Fetch the list of installed models from Ollama."""
+        try:
+            result = subprocess.run(['ollama', 'list'], capture_output=True, text=True, check=True)
+            models = result.stdout.splitlines()  # Split output into lines
+            return models
+        except subprocess.CalledProcessError as e:
+            self.logger.error(f"Error fetching installed models: {e.stderr}")
+            return []  # Return an empty list on error
+
+    def update_selected_model(self):
+        """Update the selected model based on the dropdown selection."""
+        selected_model = self.model_selection_dropdown.currentText()
+        OLLAMA_CONFIG['model'] = selected_model
+        self.logger.info(f"Selected model updated to: {selected_model}")
+        
+        # Update the label to show the currently selected model
+        self.model_selection_label.setText(f"Current Model: {selected_model}")
+        
+        # Save the selected model to a config file
+        with open('model_config.json', 'w') as f:
+            json.dump({'model': selected_model}, f)
 
     def start_virus_scan(self):
         """Start a virus scan of the system."""
