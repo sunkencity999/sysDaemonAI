@@ -2247,11 +2247,16 @@ It provides real-time monitoring, threat detection, and security intelligence ga
                     if not hasattr(conn, 'laddr') or not conn.laddr:
                         continue
                         
-                    # Create unique connection identifier
+                    # Initialize conn_key with a default value
+                    conn_key = None
+                    
+                    # Assuming this is within a loop or condition where conn is defined
                     if hasattr(conn, 'raddr') and conn.raddr:
                         conn_key = f"{conn.laddr.ip}:{conn.laddr.port}-{conn.raddr.ip}:{conn.raddr.port}"
+                    else:
+                        conn_key = f"{conn.laddr.ip}:{conn.laddr.port}-0.0.0.0:0"  # Default value if raddr is not present
                     
-                    # Skip if we've seen this connection
+                    # Now you can safely check conn_key
                     if conn_key and conn_key in seen_connections:
                         continue
                     
@@ -2441,13 +2446,17 @@ It provides real-time monitoring, threat detection, and security intelligence ga
                     if not hasattr(conn, 'laddr') or not conn.laddr:
                         continue
 
-                    # Create unique connection identifier
-                    conn_id = None
-                    if hasattr(conn, 'raddr') and conn.raddr:
-                        conn_id = f"{conn.laddr.ip}:{conn.laddr.port}-{conn.raddr.ip}:{conn.raddr.port}"
+                    # Initialize conn_key with a default value
+                    conn_key = None
                     
-                    # Skip if we've seen this connection pair
-                    if conn_id and conn_id in seen_connections:
+                    # Assuming this is within a loop or condition where conn is defined
+                    if hasattr(conn, 'raddr') and conn.raddr:
+                        conn_key = f"{conn.laddr.ip}:{conn.laddr.port}-{conn.raddr.ip}:{conn.raddr.port}"
+                    else:
+                        conn_key = f"{conn.laddr.ip}:{conn.laddr.port}-0.0.0.0:0"  # Default value if raddr is not present
+                    
+                    # Now you can safely check conn_key
+                    if conn_key and conn_key in seen_connections:
                         continue
                     
                     # Only count established and listening connections in total
@@ -2459,8 +2468,8 @@ It provides real-time monitoring, threat detection, and security intelligence ga
                             if not conn.raddr.ip.startswith('127.'):
                                 established += 1
                                 unique_remote_ips.add(conn.raddr.ip)
-                                if conn_id:
-                                    seen_connections.add(conn_id)
+                                if conn_key:
+                                    seen_connections.add(conn_key)
                     elif conn.status == 'LISTEN':
                         listening += 1
                     elif conn.status == 'TIME_WAIT':
@@ -4592,4 +4601,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-
