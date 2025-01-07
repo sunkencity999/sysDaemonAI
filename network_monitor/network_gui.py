@@ -2781,7 +2781,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             
             # Update last updated timestamp
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.last_security_update_label = QLabel("Last Update: " + current_time)
+            self.last_security_update_label.setText("Last Update: " + current_time)  # Update existing label
             
             # Update status bar with timestamp
             status_msg = f"Security analysis updated at {current_time}"
