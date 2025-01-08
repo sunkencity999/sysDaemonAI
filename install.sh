@@ -465,6 +465,11 @@ Base.metadata.create_all(engine)
     
     print_status "green" "Database initialized successfully"
     
+    # Set up default admin user
+    print_status "yellow" "Setting up default admin user..."
+    sudo -u $REAL_USER python3 setup_admin.py || handle_error "Failed to set up admin user"
+    print_status "green" "Default admin user created successfully (username: Admin, password: sysdaemonAI)"
+    
     # Alembic setup for migrations
     if [ ! -d "alembic" ]; then
         print_status "yellow" "Setting up database migrations..."
