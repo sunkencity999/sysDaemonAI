@@ -1,6 +1,9 @@
 import sys
 import os
 import json
+import requests
+from threading import Thread
+from PyQt6.QtCore import Qt, QMetaObject, Q_ARG
 import socket
 import logging
 import platform
@@ -3251,7 +3254,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         except Exception as e:
             self.statusBar.showMessage(f"Error updating statistics: {str(e)}", 5000)
             print(f"Statistics update error: {str(e)}")
-    
+
     def update_analytics_trends(self, start_time, end_time, metrics_type):
         """Update the trends table based on selected parameters"""
         try:
@@ -3473,6 +3476,13 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         self.clear_button.setEnabled(False)
         button_layout.addWidget(self.clear_button)
 
+        # Add AI Analysis button
+        self.analyze_button = QPushButton("AI Analysis")
+        self.analyze_button.clicked.connect(self.analyze_captured_packets)
+        self.analyze_button.setEnabled(False)
+        self.analyze_button.setToolTip("Analyze captured packets using AI")
+        button_layout.addWidget(self.analyze_button)
+
         button_group.setLayout(button_layout)
         control_panel.addWidget(button_group)
         
@@ -3588,6 +3598,8 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             self.start_capture_button.setEnabled(False)
             self.stop_capture_button.setEnabled(True)
             self.export_button.setEnabled(False)
+            self.clear_button.setEnabled(False)
+            self.analyze_button.setEnabled(False)  # Disable analyze button when starting capture
             self.interface_combo.setEnabled(False)
             self.filter_input.setEnabled(False)
             self.packet_count_input.setEnabled(False)
@@ -3615,6 +3627,8 @@ It provides real-time monitoring, threat detection, and security intelligence ga
                 self.start_capture_button.setEnabled(True)
                 self.stop_capture_button.setEnabled(False)
                 self.export_button.setEnabled(len(self.captured_packets) > 0)
+                self.clear_button.setEnabled(len(self.captured_packets) > 0)
+                self.analyze_button.setEnabled(len(self.captured_packets) > 0)  # Enable analyze button after stopping capture
                 
                 # Update status
                 self.capture_status_label.setText("Status: Stopped")
@@ -3668,6 +3682,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             self.stop_capture_button.setEnabled(False)
             self.clear_button.setEnabled(len(self.captured_packets) > 0)
             self.export_button.setEnabled(len(self.captured_packets) > 0)
+            self.analyze_button.setEnabled(len(self.captured_packets) > 0)  # Enable analyze button if packets were captured
             self.interface_combo.setEnabled(True)
             self.filter_input.setEnabled(True)
             self.packet_count_input.setEnabled(True)
@@ -3721,6 +3736,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             self.capture_status_label.setText("Status: Ready")
             self.clear_button.setEnabled(False)
             self.export_button.setEnabled(False)
+            self.analyze_button.setEnabled(False)  # Disable analyze button
             
             # Enable input elements
             self.interface_combo.setEnabled(True)
@@ -3926,7 +3942,105 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         except Exception as e:
             self.logger.error(f"Error exporting packet data: {str(e)}\n{traceback.format_exc()}")
             self.show_notification("Error", f"Failed to export packet data: {str(e)}")
-    
+
+    def analyze_captured_packets(self):
+        """Analyze captured packets using AI"""
+        if not self.captured_packets:
+            self.show_notification("Error", "No packets to analyze")
+            return
+        
+        self.logger.info("Starting AI analysis...")
+        self.capture_status_label.setText("Status: Analyzing...")
+        self.analyze_button.setEnabled(False)
+
+        try:
+            # Create analysis dialog
+            dialog = QDialog(self)
+            dialog.setWindowTitle("AI Packet Analysis")
+            dialog.setMinimumSize(600, 400)
+        
+            layout = QVBoxLayout()
+            status = QLabel("Analyzing packets...")
+            text = QTextEdit()
+            text.setReadOnly(True)
+            close = QPushButton("Close")
+            close.clicked.connect(dialog.accept)
+        
+            layout.addWidget(status)
+            layout.addWidget(text)
+            layout.addWidget(close)
+            dialog.setLayout(layout)
+            dialog.show()
+
+            # Prepare data
+            packets = [{
+                'time': p['time'],
+                'source': p['source'], 
+                'destination': p['destination'],
+                'protocol': p['protocol'],
+                'length': p['length'],
+                'src_port': p['src_port'],
+                'dst_port': p['dst_port'],
+                'info': p['info']
+            } for p in self.captured_packets]
+
+            # Analysis in thread
+            def analyze():
+                try:
+                    prompt = f"""Analyze these network packets for security issues and patterns:
+{json.dumps(packets, indent=2)}
+
+Provide:
+1. Traffic patterns overview
+2. Security concerns
+3. Protocol usage
+4. Monitoring recommendations
+5. Summary
+
+Focus on suspicious patterns."""
+
+                    # Make request to local Ollama instance
+                    response = requests.post('http://localhost:11434/api/generate',
+                                          json={
+                                              'model': 'llama2',
+                                              'prompt': prompt,
+                                              'stream': False
+                                          })
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        analysis_text = result['response']
+                        
+                        # Update UI on main thread
+                        QMetaObject.invokeMethod(status, "setText", 
+                           Qt.ConnectionType.QueuedConnection,
+                           Q_ARG(str, "Analysis complete"))
+                        QMetaObject.invokeMethod(text, "setPlainText", 
+                           Qt.ConnectionType.QueuedConnection,
+                           Q_ARG(str, analysis_text))
+                    else:
+                        raise Exception(f"Ollama request failed: {response.text}")
+                    
+                except Exception as e:
+                    self.logger.error(f"Ollama error: {e}")
+                    # Update error status on main thread
+                    QMetaObject.invokeMethod(status, "setText",
+                           Qt.ConnectionType.QueuedConnection,
+                           Q_ARG(str, "Analysis failed"))
+                    error_msg = "AI analysis failed. Is Ollama running?"
+                    QMetaObject.invokeMethod(self, "show_notification",
+                           Qt.ConnectionType.QueuedConnection,
+                           Q_ARG(str, "Error"),
+                           Q_ARG(str, error_msg))
+
+            Thread(target=analyze).start()
+
+        except Exception as e:
+            self.logger.error(f"Error: {e}")
+            self.show_notification("Error", str(e))
+        finally:
+            self.analyze_button.setEnabled(True)
+            self.capture_status_label.setText("Status: Ready")
     def create_system_tray(self):
         """Create and initialize the system tray icon"""
         self.tray_icon = QSystemTrayIcon(self)
@@ -4066,7 +4180,8 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         except Exception as e:
             error_msg = f"Error configuring system startup: {str(e)}"
             self.logger.error(error_msg)
-            self._handle_general_error(error_msg)
+            if hasattr(self, 'show_notification'):
+                self.show_notification("Error", error_msg)
             # Revert checkbox state
             self.startup_checkbox.setChecked(self._is_launch_agent_enabled())
 
