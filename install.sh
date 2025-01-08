@@ -51,6 +51,142 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 1' INT TERM
 
+# Helper function to show progress
+show_progress() {
+    pid=$1
+    message=$2
+    spin='-\|/'
+    i=0
+    while kill -0 $pid 2>/dev/null; do
+        i=$(( (i+1) %4 ))
+        printf "\r$message ${spin:$i:1}"
+        sleep .1
+    done
+    printf "\r$message Complete!\n"
+}
+
+# Create installation checkpoint
+create_checkpoint() {
+    echo "$1" > .install_checkpoint
+}
+
+# Check if installation can be resumed
+resume_install() {
+    if [ -f .install_checkpoint ]; then
+        checkpoint=$(cat .install_checkpoint)
+        case $checkpoint in
+            "system_dependencies")
+                return 0
+                ;;
+            "python_setup")
+                return 0
+                ;;
+            "database_setup")
+                return 0
+                ;;
+            *)
+                return 1
+                ;;
+        esac
+    fi
+    return 1
+}
+
+# Backup existing configuration
+backup_config() {
+    if [ -f ".env" ] || [ -f "config.py" ]; then
+        backup_dir="backups/$(date +%Y%m%d_%H%M%S)"
+        mkdir -p "$backup_dir"
+        [ -f ".env" ] && cp .env "$backup_dir/.env.bak"
+        [ -f "config.py" ] && cp config.py "$backup_dir/config.py.bak"
+        print_status "green" "Configuration backed up to $backup_dir"
+    fi
+}
+
+# Check system requirements
+check_system_requirements() {
+    print_status "yellow" "Checking system requirements..."
+    
+    # Check disk space
+    required_space=2048  # 2GB in MB
+    available_space=$(df -m . | awk 'NR==2 {print $4}')
+    if [ "$available_space" -lt "$required_space" ]; then
+        handle_error "Insufficient disk space. Need at least ${required_space}MB"
+    fi
+    
+    # Check memory
+    required_memory=2048  # 2GB in MB
+    available_memory=$(sysctl hw.memsize | awk '{print $2/1024/1024}' | cut -d. -f1)
+    if [ "$available_memory" -lt "$required_memory" ]; then
+        handle_error "Insufficient memory. Need at least ${required_memory}MB"
+    fi
+    
+    # Check macOS version
+    os_version=$(sw_vers -productVersion)
+    if [[ "$os_version" < "10.15" ]]; then
+        handle_error "macOS 10.15 or higher required"
+    fi
+    
+    print_status "green" "System requirements check passed"
+}
+
+# Check network connectivity
+check_network() {
+    print_status "yellow" "Checking network connectivity..."
+    if ! ping -c 1 github.com &> /dev/null; then
+        handle_error "No internet connection. Please check your network."
+    fi
+    
+    # Check if required ports are available
+    required_ports=(8000 11434)  # Add any other required ports
+    for port in "${required_ports[@]}"; do
+        if lsof -i ":$port" &> /dev/null; then
+            print_status "yellow" "Warning: Port $port is already in use"
+        fi
+    done
+    
+    print_status "green" "Network connectivity check passed"
+}
+
+# Post-installation health check
+check_installation() {
+    print_status "yellow" "Running post-installation checks..."
+    
+    # Check Python installation
+    if ! command_exists python3; then
+        print_status "red" "Python installation failed"
+        return 1
+    fi
+    
+    # Check database
+    if [ ! -f "data/sysdaemon.db" ]; then
+        print_status "red" "Database initialization failed"
+        return 1
+    fi
+    
+    # Check Ollama
+    if ! curl -s http://localhost:11434/api/tags >/dev/null; then
+        print_status "red" "Ollama is not responding"
+        return 1
+    fi
+    
+    # Check admin user
+    if ! sudo -u $REAL_USER python3 -c "
+from auth_manager import AuthManager
+from database import DatabaseManager
+db = DatabaseManager()
+auth = AuthManager(db)
+exists = db.fetch_one('SELECT id FROM users WHERE username = ?', ('Admin',))
+exit(0 if exists else 1)
+"; then
+        print_status "red" "Admin user setup failed"
+        return 1
+    fi
+    
+    print_status "green" "All post-installation checks passed!"
+    return 0
+}
+
 # Create temporary directory
 TMP_DIR=$(mktemp -d)
 
@@ -315,6 +451,12 @@ main() {
     # Backup existing configuration
     backup_config
     
+    # Check system requirements
+    check_system_requirements
+    
+    # Check network connectivity
+    check_network
+    
     # Check Ollama installation and model
     if command_exists ollama; then
         print_status "green" "Ollama is already installed"
@@ -496,70 +638,56 @@ Base.metadata.create_all(engine)
         print_status "green" "API key saved to .env file"
     fi
     
+    # Advanced configuration setup
+    print_status "yellow" "Would you like to configure advanced settings? (y/n)"
+    read -r configure_advanced
+    if [[ $configure_advanced =~ ^[Yy]$ ]]; then
+        # Port configuration
+        print_status "yellow" "Enter the port for the monitoring interface (default: 8000):"
+        read -r port
+        port=${port:-8000}
+        echo "MONITOR_PORT=$port" >> .env
+        
+        # Log retention
+        print_status "yellow" "Enter log retention period in days (default: 90):"
+        read -r retention
+        retention=${retention:-90}
+        echo "LOG_RETENTION_DAYS=$retention" >> .env
+        
+        # Performance monitoring interval
+        print_status "yellow" "Enter performance monitoring interval in seconds (default: 60):"
+        read -r interval
+        interval=${interval:-60}
+        echo "MONITOR_INTERVAL=$interval" >> .env
+        
+        print_status "green" "Advanced settings configured successfully"
+    fi
+    
+    # Run post-installation health check
+    if ! check_installation; then
+        print_status "red" "Installation verification failed. Please check the errors above."
+        print_status "yellow" "You may need to run the installer again or contact support."
+        exit 1
+    fi
+    
     # Cleanup checkpoint file
     rm -f .install_checkpoint
     
     print_status "green" "Installation complete!"
     print_status "yellow" "Important Notes:"
-    print_status "yellow" "1. You can run the application by double-clicking 'launch_network_monitoring.command'"
-    print_status "yellow" "2. You'll need to grant permissions for packet capture on first run"
-    print_status "yellow" "3. Set your AbuseIPDB API key in the config file for threat detection"
-    print_status "yellow" "4. The application will run with elevated privileges for packet capture"
-    print_status "yellow" "5. Check the logs directory for any issues"
+    print_status "yellow" "1. Default admin credentials:"
+    print_status "yellow" "   Username: Admin"
+    print_status "yellow" "   Password: sysdaemonAI"
+    print_status "yellow" "2. Please change the admin password on first login"
+    print_status "yellow" "3. Configuration files are in: $(pwd)"
+    print_status "yellow" "4. Logs directory: $(pwd)/logs"
+    print_status "yellow" "5. To start the application, run: ./launch_network_monitoring.command"
     
-    # Enterprise security features and authentication setup
-    print_status "yellow" "Setting up enterprise security features and authentication..."
-    pip install PyJWT bcrypt || handle_error "Failed to install enterprise security packages"
-    python3 setup_database.py || handle_error "Failed to initialize database"
-    python3 setup_admin.py || handle_error "Failed to create admin user"
-    mkdir -p logs || handle_error "Failed to create logs directory"
-    chmod 755 logs || handle_error "Failed to set logs directory permissions"
-    for dir in "rules" "data" "exports" "backups" "quarantine"; do
-        mkdir -p "$dir" || handle_error "Failed to create $dir directory"
-        chmod 755 "$dir" || handle_error "Failed to set $dir directory permissions"
-    done
-    chmod 644 *.py || handle_error "Failed to set Python file permissions"
-    chmod 755 *.sh || handle_error "Failed to set shell script permissions"
-    
-    # macOS specific setup
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        print_status "yellow" "Performing macOS-specific setup..."
-        mkdir -p ~/Library/LaunchAgents || handle_error "Failed to create launch agents directory"
-        cp com.sysdaemonai.plist ~/Library/LaunchAgents/ || handle_error "Failed to copy launch agent plist"
-        chmod 644 ~/Library/LaunchAgents/com.sysdaemonai.plist || handle_error "Failed to set launch agent plist permissions"
-        print_status "yellow" "To enable automatic startup, run: launchctl load ~/Library/LaunchAgents/com.sysdaemonai.plist"
+    if [ -d "backups" ]; then
+        print_status "yellow" "6. Configuration backups are in: $(pwd)/backups"
     fi
     
-    # Create desktop shortcut (if on Linux)
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        print_status "yellow" "Creating desktop shortcut..."
-        cat > ~/.local/share/applications/sysdaemonai.desktop << EOL
-[Desktop Entry]
-Name=SysDaemon AI
-Comment=Enterprise Security Suite
-Exec=$(pwd)/launch.sh
-Icon=$(pwd)/icons/sysdaemon.png
-Terminal=false
-Type=Application
-Categories=Security;System;
-EOL
-    fi
-    
-    print_status "green" "Enterprise security features and authentication setup complete!"
-    print_status "yellow" "Default admin credentials:"
-    print_status "yellow" "Username: Admin"
-    print_status "yellow" "Password: sysdaemonAI"
-    print_warning "IMPORTANT: Please change the default admin password after first login"
-    
-    # Print next steps
-    echo ""
-    echo "Next steps:"
-    echo "1. Start the application: ./launch.sh"
-    echo "2. Log in with the default admin credentials"
-    echo "3. Change the default admin password"
-    echo "4. Configure additional users and roles as needed"
-    echo ""
-    print_warning "For enterprise deployment, please refer to the Enterprise Deployment Guide in the documentation"
+    print_status "green" "Thank you for installing SysDaemon AI!"
 }
 
 # Run main installation
