@@ -15,6 +15,10 @@ from threading import Thread
 import logging
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+import urllib3
+
+# Disable SSL verification warnings since we're intentionally not verifying
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class SecurityFinding:
     """Class to represent a security finding."""
@@ -70,35 +74,24 @@ class CrawlerAgent(BaseAgent, QObject):
             
         self.max_indicators = self.config.get('max_indicators', 100)
         
-        # Add rate limiting and timeouts
-        self.headers = {
-            'User-Agent': 'SecurityMonitor/1.0',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Accept-Encoding': 'gzip, deflate',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1'
-        }
+        # Configure session with retries but without SSL verification
+        self.session = requests.Session()
+        retry_strategy = Retry(
+            total=3,
+            backoff_factor=1,
+            status_forcelist=[500, 502, 503, 504]
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
+        self.session.verify = False  # Disable SSL verification
         
+        # Add rate limiting and timeouts
         self.request_delay = self.config.get('request_delay', 1)  # Reduced delay
         self.timeout = self.config.get('timeout', 5)  # Shorter timeout
         self.max_retries = self.config.get('max_retries', 2)
         self.max_content_length = self.config.get('max_content_length', 1024 * 1024)  # 1MB limit
         self.allowed_domains = [urlparse(url).netloc for url in self.seed_urls]
-        
-        # Initialize session for connection pooling
-        self.session = requests.Session()
-        self.session.headers.update(self.headers)
-        
-        # Add retry mechanism
-        retry = Retry(
-            total=self.max_retries,
-            backoff_factor=0.5,
-            status_forcelist=[500, 502, 503, 504]
-        )
-        self.session.mount('http://', HTTPAdapter(max_retries=retry))
-        self.session.mount('https://', HTTPAdapter(max_retries=retry))
         
         # Security patterns to look for
         self.security_patterns = {

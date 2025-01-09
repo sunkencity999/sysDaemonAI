@@ -2,6 +2,7 @@ psutil>=5.9.7
 pandas>=2.1.4
 scapy>=2.5.0
 requests>=2.31.0
+certifi>=2024.8.30  # Added for SSL certificate verification
 schedule>=1.2.1
 plyer>=2.1.0
 pyobjc-core>=9.2

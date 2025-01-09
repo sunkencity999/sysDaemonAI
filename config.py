@@ -1,6 +1,10 @@
 """Configuration settings for the system daemon AI."""
 
 import os
+from api_key_manager import APIKeyManager
+
+# Initialize API key manager
+_api_key_manager = APIKeyManager()
 
 # API Configuration
 OLLAMA_CONFIG = {
@@ -20,7 +24,7 @@ OLLAMA_CONFIG = {
 
 # AbuseIPDB Configuration
 ABUSEIPDB_CONFIG = {
-    'api_key': 'd823ef94bd0ab629c2ebbd7ba44dc7a8ad7774a040fd7e3239ef9d03f97fc3a2f00fd3434022b58e',
+    'api_key': _api_key_manager.get_key('ABUSEIPDB_API_KEY'),
     'base_url': 'https://api.abuseipdb.com/api/v2',
     'confidence_score': 90,
     'timeout': 10,  # seconds
