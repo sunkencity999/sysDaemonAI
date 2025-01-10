@@ -11,7 +11,7 @@ OLLAMA_CONFIG = {
     'base_url': 'http://localhost:11434',
     'generate_endpoint': '/api/generate',
     'health_endpoint': '/api/version',
-    'model': 'llama3.2:latest',  # Using llama3.2 for superior performance and analysis
+    'model': 'llama3.2:latest',  # Using llama3.2 as default for superior performance and analysis
     'timeout': 40,  # Reduced timeout since smaller model is faster
     'retries': 5,
     'retry_delay': 3,  # Reduced delay since model is faster

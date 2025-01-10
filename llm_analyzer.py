@@ -229,7 +229,8 @@ Analyze these metrics for:
 4. System performance concerns
 5. Recommended actions if any issues are found
 
-Focus on the actual values and their security implications, not the data structure."""
+Focus on the actual values and their security implications, not the data structure.
+Be verbose and specific when providing details about threats and offering corrective reccommendations. """
 
     def _merge_llm_analysis(self, base_analysis: Dict, llm_analysis: Dict):
         """Merge LLM analysis with baseline analysis"""

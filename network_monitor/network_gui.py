@@ -593,7 +593,7 @@ class NetworkMonitorGUI(QMainWindow):
     def setup_ui(self):
         """Setup the main user interface"""
         try:
-            self.setWindowTitle('SysDaemon AI - Network Monitor')
+            self.setWindowTitle('SysDaemon AI - Security Monitor')
             self.resize(1200, 800)
             
             # Create central widget and main layout
@@ -933,6 +933,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
 <li>Excel-based packet analysis</li>
 <li>Customizable capture filters</li>
 <li>Protocol-specific analysis</li>
+<li>AI-Powered Packet Analysis</li>
 </ul>
 
 <h4>Data Management</h4>
@@ -946,7 +947,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
 
 <p><strong>Created by:</strong> Christopher Bradford</p>
 <p><strong> contact@christopherdanielbradford.com
-<p><strong>License:</strong> MIT License</p>
+<p><strong>License:</strong> Commercial License</p>
 """
         QMessageBox.about(self, "About SysDaemon AI", about_text)
     
@@ -1124,7 +1125,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         
         # Header with title and status
         header_layout = QHBoxLayout()
-        security_title = QLabel("<h3>Security Analysis</h3>")
+        security_title = QLabel("<h3>AI Security Analysis</h3>")
         security_title.setStyleSheet("QLabel { color: #F44336; }")
         header_layout.addWidget(security_title)
         
