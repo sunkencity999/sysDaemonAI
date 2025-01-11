@@ -3,18 +3,19 @@
 import sys
 import os
 import json
-import threading
+import logging
+import requests
+import urllib3
+from datetime import datetime, timedelta
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                            QTextEdit, QPushButton, QLineEdit, QTabWidget, 
                            QGroupBox, QComboBox, QSpinBox, QCheckBox,
                            QFileDialog, QMessageBox, QDialog)
 from PyQt6.QtCore import Qt, pyqtSignal, QObject, QTimer
 from PyQt6.QtGui import QTextCursor
-import logging
-import logging.handlers
+import threading
 import queue
 from queue import Queue
-from datetime import datetime, timedelta
 from typing import Dict, Any
 from config import LOG_CONFIG, OLLAMA_CONFIG
 from virus_scanner import VirusScanner
@@ -59,6 +60,9 @@ def setup_logging():
     root_logger.addHandler(console_handler)
     
     return root_logger
+
+# Disable SSL verification warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Initialize logging
 logger = setup_logging()
@@ -345,7 +349,7 @@ class AgentTabs(QWidget):
                     'maxAgeInDays': '90'
                 }
                 
-                response = requests.get(url, headers=headers, params=params)
+                response = requests.get(url, headers=headers, params=params, verify=False)
                 if response.status_code == 200:
                     data = response.json()['data']
                     text_widget.append(f"\nResults for IP: {ip}")

@@ -13,8 +13,12 @@ from datetime import datetime, timedelta
 
 class NetworkManager:
     def __init__(self, pool_connections=100, pool_maxsize=100, max_retries=3, 
-                 cache_ttl=300, cache_maxsize=1000):
+                 cache_ttl=300, cache_maxsize=1000, verify_ssl=True):
         self.logger = logging.getLogger(__name__)
+        self.verify_ssl = verify_ssl
+        if not verify_ssl:
+            import urllib3
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         self.session = self._create_session(pool_connections, pool_maxsize, max_retries)
         self.cache = TTLCache(maxsize=cache_maxsize, ttl=cache_ttl)
         
@@ -22,6 +26,7 @@ class NetworkManager:
                        max_retries: int) -> requests.Session:
         """Create a session with connection pooling and retry strategy."""
         session = requests.Session()
+        session.verify = self.verify_ssl
         
         # Configure retry strategy
         retry_strategy = Retry(

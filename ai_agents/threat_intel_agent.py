@@ -5,6 +5,11 @@ from typing import Dict, Any, List
 import requests
 import json
 from datetime import datetime, timedelta
+import urllib3
+import sqlite3
+
+# Disable SSL verification warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class ThreatIntelAgent(BaseAgent):
     def __init__(self, api_keys: Dict[str, str]):
@@ -15,10 +20,14 @@ class ThreatIntelAgent(BaseAgent):
         )
         self.api_keys = api_keys
         self.intel_sources = {
-            'abuseipdb': 'https://api.abuseipdb.com/api/v2/blacklist',
+            'abuseipdb': 'https://api.abuseipdb.com',  
             'virustotal': 'https://www.virustotal.com/vtapi/v2/ip-address/report',
             # Add more threat intel sources as needed
         }
+        
+        # Create session with SSL verification disabled
+        self.session = requests.Session()
+        self.session.verify = False
     
     def analyze_ip(self, ip_address: str) -> Dict[str, Any]:
         """Analyze an IP address against threat intelligence sources."""
@@ -31,10 +40,15 @@ class ThreatIntelAgent(BaseAgent):
                     'Key': self.api_keys['abuseipdb'],
                     'Accept': 'application/json',
                 }
-                response = requests.get(
-                    f"{self.intel_sources['abuseipdb']}/check",
+                params = {
+                    'ipAddress': ip_address,
+                    'maxAgeInDays': '90'
+                }
+                response = self.session.get(
+                    f"{self.intel_sources['abuseipdb']}/api/v2/check",
                     headers=headers,
-                    params={'ipAddress': ip_address}
+                    params=params,
+                    timeout=10.0
                 )
                 if response.status_code == 200:
                     data = response.json()

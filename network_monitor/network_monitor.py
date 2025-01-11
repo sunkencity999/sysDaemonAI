@@ -89,7 +89,8 @@ class NetworkMonitor:
             pool_maxsize=100,
             max_retries=3,
             cache_ttl=300,
-            cache_maxsize=1000
+            cache_maxsize=1000,
+            verify_ssl=False  # Disable SSL verification
         )
         
         # Initialize Ollama cache

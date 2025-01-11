@@ -10,10 +10,14 @@ import re
 import requests
 import os
 import time
+import urllib3
 from config import ABUSEIPDB_CONFIG
 from api_cache import APICache
 from ip_blacklist_manager import IPBlacklistManager
 from llm_analyzer import LLMAnalyzer
+
+# Disable SSL verification warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class ThreatDetector:
     def __init__(self, logger=None, ip_blacklist_manager=None):
@@ -418,7 +422,7 @@ class ThreatDetector:
         
         for feed in self.threat_feeds:
             try:
-                response = requests.get(feed)
+                response = requests.get(feed, verify=False)  # Disable SSL verification
                 response.raise_for_status()
                 known_threats.update(response.text.splitlines())
             except requests.RequestException as e:

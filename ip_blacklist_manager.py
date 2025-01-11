@@ -7,6 +7,10 @@ import logging
 from typing import Set, Optional
 import requests
 from pathlib import Path
+import urllib3
+
+# Disable SSL verification warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +73,7 @@ class IPBlacklistManager:
         
         for endpoint in self.api_endpoints:
             try:
-                response = requests.get(endpoint, timeout=10)
+                response = requests.get(endpoint, timeout=10, verify=False)  # Disable SSL verification
                 if response.status_code == 200:
                     # Parse IPs from the response text
                     # This is a simple implementation; you might need to adjust
