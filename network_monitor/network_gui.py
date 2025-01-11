@@ -1275,7 +1275,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         self.security_timer = QTimer()
         self.security_timer.timeout.connect(self.update_security_analysis)
         # Set to update every hour
-        self.security_timer.start(900000)  # 900000 ms = 15 minutes
+        self.security_timer.start(3600000)  # 3600000 ms = 1 hour
         
         # Initial security analysis
         QTimer.singleShot(1000, self.update_security_analysis)
