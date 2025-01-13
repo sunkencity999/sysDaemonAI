@@ -4705,6 +4705,11 @@ def main():
         # Set application style
         app.setStyle('Fusion')
         
+        # Set application icon globally
+        icon_path = os.path.join(os.path.dirname(__file__), 'icons', 'app_icon.png')
+        if os.path.exists(icon_path):
+            app.setWindowIcon(QIcon(icon_path))
+        
         # Create and show main window
         window = NetworkMonitorGUI()
         window.show()
