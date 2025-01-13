@@ -3726,7 +3726,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             dialog.setMinimumSize(600, 400)
         
             layout = QVBoxLayout()
-            status = QLabel("Analyzing packets...")
+            status = QLabel("Analyzing packets... this may take a few minutes.")
             text = QTextEdit()
             text.setReadOnly(True)
             close = QPushButton("Close")
