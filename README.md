@@ -201,6 +201,32 @@ python3 -m network_monitor.network_gui
 6. Review agent collaboration logs
 7. Configure LLM settings for local processing
 
+### Security Agent Chat
+The Security Agent Chat provides an interactive interface for discussing and analyzing security concerns:
+
+1. **Contextual Security Analysis**:
+   - Maintains conversation history for in-depth security discussions
+   - Understands context from previous messages for better assistance
+   - Provides precise, security-focused responses
+
+2. **Security Expertise**:
+   - Helps analyze potential security threats
+   - Explains security concepts and best practices
+   - Assists with incident response planning
+   - Provides guidance on security configurations
+
+3. **User-Friendly Interface**:
+   - Clean, modern chat interface
+   - Real-time streaming responses
+   - Easy-to-use message input
+   - Copy functionality for responses
+   - New chat option to start fresh conversations
+
+4. **Integration with System Data**:
+   - References real-time system security status
+   - Provides context-aware security recommendations
+   - Analyzes current network activity patterns
+
 ## Configuration
 
 ### Agent Configuration

@@ -662,7 +662,7 @@ class NetworkMonitorGUI(QMainWindow):
         """Show the About dialog with application information"""
         about_text = """
 <h2>SysDaemon AI</h2>
-<p>Version 1.3.0 (December 19, 2024)</p>
+<p>Version 2.0 (January 13, 2025)</p>
 
 <h3>Overview</h3>
 <p>SysDaemon AI is an advanced network monitoring and security analysis tool powered by AI agents. 
@@ -714,6 +714,14 @@ It provides real-time monitoring, threat detection, and security intelligence ga
 <li>Automated backup system</li>
 </ul>
 
+<h4>Security Agent Chat</h4>
+<ul>
+<li> Security focused prompt for LLM focus</li>
+<li> Threaded conversation to retain context</li>
+<li> Simple and user-friendly interface</li>
+</ul>
+
+<h3>Contact Information</h3>
 <p><strong>Created by:</strong> Christopher Bradford</p>
 <p><strong> contact@christopherdanielbradford.com
 <p><strong>License:</strong> Commercial License</p>
@@ -2633,12 +2641,20 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             # Then try using native notification system
             try:
                 from plyer import notification
-                notification.notify(
-                    title=title,
-                    message=message,
-                    app_icon=None,
-                    timeout=10
-                )
+                icon_path = os.path.join(os.path.dirname(__file__), 'icons', 'app_icon.png')
+                if os.path.exists(icon_path):
+                    notification.notify(
+                        title=title,
+                        message=message,
+                        app_icon=icon_path,
+                        timeout=10
+                    )
+                else:
+                    notification.notify(
+                        title=title,
+                        message=message,
+                        timeout=10
+                    )
             except ImportError:
                 # If plyer/pyobjus is not available, fall back to status bar
                 self.statusBar.showMessage(f"{title}: {message}", 5000)
@@ -3934,7 +3950,23 @@ Focus on suspicious patterns."""
                 'messages': [
                     {
                         'role': 'system',
-                        'content': 'You are a Security Agent AI assistant. You help users understand and respond to security events and threats. Be concise and precise in your responses.'
+                        'content': """You are a Security Agent AI assistant, an expert in cybersecurity and network monitoring. Your role is to help users understand and respond to security events, threats, and system behavior.
+
+Key Responsibilities:
+1. Analyze and explain security events and potential threats
+2. Provide guidance on network security best practices
+3. Help interpret system logs and network traffic patterns
+4. Assist with incident response and mitigation strategies
+5. Explain security concepts in clear, precise terms
+
+Guidelines:
+- Be concise and precise in your responses
+- Focus on practical, actionable advice
+- Maintain a security-first mindset
+- Consider both immediate threats and long-term security implications
+- Reference relevant security standards and best practices when applicable
+
+You have access to real-time system data and network monitoring information. Use this context to provide informed, relevant security guidance."""
                     }
                 ] + self.conversation_history,
                 'stream': True  # Explicitly enable streaming
@@ -4702,13 +4734,20 @@ def main():
     app = QApplication(sys.argv)
     
     try:
+        # Set application metadata
+        app.setApplicationName("SysDaemon AI")
+        app.setApplicationDisplayName("SysDaemon AI")
+        app.setOrganizationName("Sysdaemon AI")
+        app.setOrganizationDomain("Sysdaemon AI")
+        
         # Set application style
         app.setStyle('Fusion')
         
         # Set application icon globally
         icon_path = os.path.join(os.path.dirname(__file__), 'icons', 'app_icon.png')
         if os.path.exists(icon_path):
-            app.setWindowIcon(QIcon(icon_path))
+            app_icon = QIcon(icon_path)
+            app.setWindowIcon(app_icon)
         
         # Create and show main window
         window = NetworkMonitorGUI()
