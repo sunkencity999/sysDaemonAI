@@ -1,3 +1,12 @@
+import os
+import sys
+
+# Add the project root directory to Python path if running as script
+if __name__ == '__main__':
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+
 import sys
 import os
 import json
@@ -63,6 +72,11 @@ from ai_agents.crawler_agent import CrawlerAgent
 from agent_ui import AgentTabs
 import config
 from auth_manager import AuthManager
+try:
+    from .packet_capture import PacketCaptureThread  # Try relative import first
+except ImportError:
+    # If relative import fails, try importing from the same directory
+    from packet_capture import PacketCaptureThread  # Fall back to absolute import
 
 class NetworkMonitorThread(QThread):
     connection_update = pyqtSignal(list)
@@ -140,185 +154,6 @@ class NetworkMonitorThread(QThread):
     
     def stop(self):
         self.running = False
-
-class PacketCaptureThread(QThread):
-    packet_received = pyqtSignal(dict)
-    capture_complete = pyqtSignal()
-    error_signal = pyqtSignal(str)
-    status_signal = pyqtSignal(str)
-
-    def __init__(self, interface, filter_text="", packet_count=1000):
-        super().__init__()
-        self.interface = interface
-        self.filter_text = filter_text
-        self.packet_count = packet_count
-        self.running = True
-        self.captured_count = 0
-        self.sniffer = None
-        self.logger = logging.getLogger(__name__)
-
-    def run(self):
-        """Run packet capture"""
-        try:
-            # Check for root privileges first
-            if os.geteuid() != 0:
-                raise PermissionError("Packet capture requires root privileges")
-
-            # Log start of capture
-            self.logger.info(f"Starting capture on interface {self.interface}")
-            self.status_signal.emit("Initializing capture...")
-            
-            # Get system interfaces
-            psutil_ifaces = list(psutil.net_if_addrs().keys())
-            scapy_ifaces = get_if_list()
-            
-            self.logger.debug(f"Available interfaces - psutil: {psutil_ifaces}, scapy: {scapy_ifaces}")
-            
-            # Validate interface
-            if not self.interface:
-                raise ValueError("No interface specified")
-
-            # First try exact match
-            if self.interface in scapy_ifaces:
-                self.logger.info(f"Using exact interface match: {self.interface}")
-            else:
-                # Try case-insensitive match
-                for iface in scapy_ifaces:
-                    if self.interface.lower() == iface.lower():
-                        self.interface = iface
-                        self.logger.info(f"Found case-insensitive match: {self.interface}")
-                        break
-                else:
-                    # Try partial match
-                    matches = [iface for iface in scapy_ifaces if self.interface.lower() in iface.lower()]
-                    if len(matches) == 1:
-                        self.interface = matches[0]
-                        self.logger.info(f"Found partial match: {self.interface}")
-                    elif len(matches) > 1:
-                        raise ValueError(f"Multiple interfaces match {self.interface}: {matches}")
-                    else:
-                        raise ValueError(f"Interface {self.interface} not found in available interfaces: {scapy_ifaces}")
-
-            self.status_signal.emit("Starting packet capture...")
-            
-            def packet_callback(packet):
-                if not self.running:
-                    return True  # Stop sniffing
-                
-                try:
-                    # Extract packet info with more details
-                    packet_info = {
-                        'time': datetime.now().strftime('%H:%M:%S.%f'),
-                        'source': packet.sprintf("{IP:%IP.src%}{ARP:%ARP.psrc%}"),
-                        'destination': packet.sprintf("{IP:%IP.dst%}{ARP:%ARP.pdst%}"),
-                        'protocol': packet.sprintf("{TCP:TCP}{UDP:UDP}{ICMP:ICMP}{ARP:ARP}"),
-                        'length': len(packet),
-                        'info': packet.summary(),
-                        'src_port': '',
-                        'dst_port': '',
-                        'raw_packet': packet
-                    }
-                    
-                    # Add TCP/UDP port information if available
-                    if TCP in packet:
-                        packet_info['src_port'] = packet[TCP].sport
-                        packet_info['dst_port'] = packet[TCP].dport
-                        packet_info['protocol'] = 'TCP'
-                        # Add TCP flags
-                        flags = []
-                        if packet[TCP].flags.S: flags.append('SYN')
-                        if packet[TCP].flags.A: flags.append('ACK')
-                        if packet[TCP].flags.F: flags.append('FIN')
-                        if packet[TCP].flags.R: flags.append('RST')
-                        if packet[TCP].flags.P: flags.append('PSH')
-                        if flags:
-                            packet_info['info'] = f"TCP {' '.join(flags)}"
-                    elif UDP in packet:
-                        packet_info['src_port'] = packet[UDP].sport
-                        packet_info['dst_port'] = packet[UDP].dport
-                        packet_info['protocol'] = 'UDP'
-                    
-                    self.packet_received.emit(packet_info)
-                    self.captured_count += 1
-                    
-                    if self.captured_count % 10 == 0:  # Update status every 10 packets
-                        self.status_signal.emit(f"Captured {self.captured_count} packets...")
-                    
-                    if self.captured_count >= self.packet_count:
-                        self.running = False
-                        return True  # Stop sniffing
-                        
-                except Exception as e:
-                    self.error_signal.emit(f"Error processing packet: {str(e)}")
-                    self.logger.error(f"Packet processing error: {str(e)}\n{traceback.format_exc()}")
-                    return False
-                    
-                return True
-            
-            # Setup sniff arguments
-            sniff_kwargs = {
-                'iface': self.interface,
-                'prn': packet_callback,
-                'store': 0,
-                'stop_filter': lambda _: not self.running
-            }
-            
-            if self.filter_text:
-                try:
-                    self.status_signal.emit("Validating capture filter...")
-                    # Validate filter using scapy's built-in validation
-                    from scapy.arch.common import compile_filter
-                    compile_filter(self.filter_text)
-                    sniff_kwargs['filter'] = self.filter_text
-                    self.logger.info(f"Using capture filter: {self.filter_text}")
-                except Exception as e:
-                    self.error_signal.emit(f"Invalid capture filter: {str(e)}")
-                    self.logger.error(f"Filter error: {str(e)}\n{traceback.format_exc()}")
-                    return
-            
-            # Start sniffing
-            try:
-                self.status_signal.emit("Starting packet capture...")
-                self.sniffer = AsyncSniffer(**sniff_kwargs)
-                self.sniffer.start()
-                self.logger.info("Packet capture started successfully")
-                self.status_signal.emit("Capturing packets...")
-            except Exception as e:
-                self.error_signal.emit(f"Failed to start capture: {str(e)}")
-                self.logger.error(f"Capture error: {str(e)}\n{traceback.format_exc()}")
-                return
-            
-            # Wait for completion or stop
-            while self.running and self.sniffer.running:
-                self.msleep(100)
-            
-        except PermissionError as e:
-            self.error_signal.emit("Permission denied. Please run with sudo or as administrator.")
-            self.logger.error(f"Permission error: {str(e)}")
-        except Exception as e:
-            self.error_signal.emit(str(e))
-            self.logger.error(f"Capture thread error: {str(e)}\n{traceback.format_exc()}")
-        finally:
-            self.cleanup()
-            self.status_signal.emit("Capture complete")
-            self.capture_complete.emit()
-
-    def stop(self):
-        """Stop the packet capture"""
-        self.logger.info("Stopping packet capture...")
-        self.status_signal.emit("Stopping capture...")
-        self.running = False
-        self.cleanup()
-
-    def cleanup(self):
-        """Clean up sniffer resources"""
-        try:
-            if self.sniffer and self.sniffer.running:
-                self.sniffer.stop()
-                self.sniffer = None
-                self.logger.info("Packet capture stopped successfully")
-        except Exception as e:
-            self.logger.error(f"Error cleaning up sniffer: {str(e)}\n{traceback.format_exc()}")
 
 class SplashScreen(QWidget):
     def __init__(self):
@@ -711,6 +546,10 @@ class NetworkMonitorGUI(QMainWindow):
                 self.admin_tab = self.setup_admin_tab()
                 self.tabs.addTab(self.admin_tab, "Admin")
             
+            # Create and add Security Agent Chat tab
+            self.security_agent_chat_tab = self.create_security_agent_chat_tab()
+            self.tabs.addTab(self.security_agent_chat_tab, "Security Agent Chat")
+            
             # Create bottom status bar
             self.statusBar = QMainWindow.statusBar(self)
             self.statusBar.setMaximumHeight(20)
@@ -1046,29 +885,6 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             "Service", "Port", "Protocol", "State"
         ])
         self.services_table.horizontalHeader().setStretchLastSection(True)
-        self.services_table.setAlternatingRowColors(True)
-        self.services_table.setSortingEnabled(True)
-        self.services_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.services_table.setStyleSheet("""
-            QTableWidget {
-                gridline-color: #2D2D2D;
-                background-color: #1E1E1E;
-                border: 1px solid #2D2D2D;
-                color: #FFFFFF;
-            }
-            QTableWidget::item {
-                padding: 5px;
-            }
-            QHeaderView::section {
-                background-color: #2D2D2D;
-                color: #FFFFFF;
-                padding: 5px;
-                border: 1px solid #3D3D3D;
-            }
-            QTableWidget::item:alternate {
-                background-color: #262626;
-            }
-        """)
         services_layout.addWidget(self.services_table)
         
         layout.addWidget(connections_group)
@@ -2696,7 +2512,8 @@ It provides real-time monitoring, threat detection, and security intelligence ga
                     'listening_ports': len(listening_ports),
                     'established_connections': len([conn for conn in connection_data if conn.get('status') == 'ESTABLISHED'])
                 },
-                'listening_ports': listening_ports
+                'listening_ports': listening_ports,
+                'context': []  # Required by Ollama API
             }
         except Exception as e:
             self.logger.error(f"Error preparing security event: {str(e)}")
@@ -2706,7 +2523,8 @@ It provides real-time monitoring, threat detection, and security intelligence ga
                 'timestamp': datetime.now().isoformat(),
                 'connections': connection_data,
                 'system_info': {},
-                'listening_ports': []
+                'listening_ports': [],
+                'context': []  # Required by Ollama API
             }
     
     def _get_listening_ports(self) -> List[Dict]:
@@ -2781,7 +2599,8 @@ It provides real-time monitoring, threat detection, and security intelligence ga
                 display_text.append("")
             
             # Set the formatted text in the display
-            self.security_text.setPlainText("\n".join(display_text))
+            self.security_text.clear()  # Clear existing content
+            self.security_text.append("\n".join(display_text))
             
             # Update last updated timestamp
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -2790,6 +2609,10 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             # Update status bar with timestamp
             status_msg = f"Security analysis updated at {current_time}"
             self.status_bar.showMessage(status_msg, 5000)
+            
+            # Force scroll to bottom after content update
+            scrollbar = self.security_text.verticalScrollBar()
+            scrollbar.setValue(scrollbar.maximum())
             
         except Exception as e:
             self.logger.error(f"Error updating security display: {str(e)}")
@@ -3633,7 +3456,7 @@ It provides real-time monitoring, threat detection, and security intelligence ga
                 
                 # Update status
                 self.capture_status_label.setText("Status: Stopped")
-                self.capture_status_label.setStyleSheet("QLabel { color: orange; }")
+                self.capture_status_label.setStyleSheet("color: orange;")  # Orange color for stopped
                 
                 # Show notification
                 self.show_notification("Info", "Packet capture stopped")
@@ -3641,8 +3464,8 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         except Exception as e:
             self.logger.error(f"Error stopping packet capture: {str(e)}")
             self.show_notification("Error", "Failed to stop packet capture")
-            self.capture_status_label.setText("Status: Error")
-            self.capture_status_label.setStyleSheet("QLabel { color: red; }")
+            self.capture_status_label.setText("Error getting response")
+            self.capture_status_label.setStyleSheet("color: red;")  # Red color for error
             self.start_capture_button.setEnabled(True)
             self.stop_capture_button.setEnabled(False)
 
@@ -3687,11 +3510,10 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             self.interface_combo.setEnabled(True)
             self.filter_input.setEnabled(True)
             self.packet_count_input.setEnabled(True)
-            self.service_combo.setEnabled(True)
             
             # Update status
             self.capture_status_label.setText("Status: Complete")
-            self.capture_status_label.setStyleSheet("QLabel { color: green; }")
+            self.capture_status_label.setStyleSheet("color: green;")  # Green color for complete
             
             # Show notification
             self.show_notification("Info", "Packet capture complete")
@@ -3718,12 +3540,12 @@ It provides real-time monitoring, threat detection, and security intelligence ga
         """Handle capture status updates"""
         self.capture_status_label.setText(f"Status: {status}")
         if "complete" in status.lower():
-            self.capture_status_label.setStyleSheet("QLabel { color: green; }")
+            self.capture_status_label.setStyleSheet("color: green;")  # Green color for complete
         elif "error" in status.lower():
-            self.capture_status_label.setStyleSheet("QLabel { color: red; }")
+            self.capture_status_label.setStyleSheet("color: red;")  # Red color for error
         else:
-            self.capture_status_label.setStyleSheet("QLabel { color: blue; }")
-
+            self.capture_status_label.setStyleSheet("color: blue;")  # Blue color for running
+    
     def clear_packet_capture(self):
         """Clear the packet capture data and reset UI elements"""
         try:
@@ -3946,16 +3768,13 @@ It provides real-time monitoring, threat detection, and security intelligence ga
 
     def analyze_captured_packets(self):
         """Analyze captured packets using AI"""
-        if not self.captured_packets:
-            self.show_notification("Error", "No packets to analyze")
-            return
-        
-        self.logger.info("Starting AI analysis...")
-        self.capture_status_label.setText("Status: Analyzing...")
-        self.analyze_button.setEnabled(False)
-
         try:
-            # Create analysis dialog
+            self.logger.info("Starting AI analysis...")
+            
+            if not self.captured_packets:
+                self.status_bar.showMessage("No packets to analyze")
+                return
+
             dialog = QDialog(self)
             dialog.setWindowTitle("AI Packet Analysis")
             dialog.setMinimumSize(600, 400)
@@ -3973,23 +3792,26 @@ It provides real-time monitoring, threat detection, and security intelligence ga
             dialog.setLayout(layout)
             dialog.show()
 
-            # Prepare data
-            packets = [{
-                'time': p['time'],
-                'source': p['source'], 
-                'destination': p['destination'],
-                'protocol': p['protocol'],
-                'length': p['length'],
-                'src_port': p['src_port'],
-                'dst_port': p['dst_port'],
-                'info': p['info']
-            } for p in self.captured_packets]
+            # Prepare data with new field names
+            packets = []
+            for p in self.captured_packets:
+                packet = {
+                    'timestamp': p.get('timestamp', datetime.now().strftime('%H:%M:%S')),
+                    'source': p.get('src', p.get('source', 'unknown')), 
+                    'destination': p.get('dst', p.get('destination', 'unknown')),
+                    'protocol': p.get('protocol', 'unknown'),
+                    'length': p.get('length', 0),
+                    'src_port': p.get('src_port', ''),
+                    'dst_port': p.get('dst_port', ''),
+                    'info': p.get('info', '')
+                }
+                packets.append(packet)
 
             # Analysis in thread
             def analyze():
                 try:
                     prompt = f"""Analyze these network packets for security issues and patterns:
-{json.dumps(packets, indent=2)}
+{json.dumps(packets[:100], indent=2)}  # Limit to first 100 packets
 
 Provide:
 1. Traffic patterns overview
@@ -4001,47 +3823,273 @@ Provide:
 Focus on suspicious patterns."""
 
                     # Make request to local Ollama instance
-                    response = requests.post('http://localhost:11434/api/generate',
-                                          json={
-                                              'model': 'llama2',
-                                              'prompt': prompt,
-                                              'stream': False
-                                          })
+                    response = requests.post(
+                        "http://localhost:11434/api/generate", 
+                        json={
+                            'model': 'mistral',  # Specify model
+                            'prompt': prompt,
+                            'stream': False  # Don't stream response
+                        }
+                    )
+                    response.raise_for_status()
+                    data = response.json()
+                    analysis_text = data.get('response', 'No response from AI')
                     
-                    if response.status_code == 200:
-                        result = response.json()
-                        analysis_text = result['response']
-                        
-                        # Update UI on main thread
-                        QMetaObject.invokeMethod(status, "setText", 
-                           Qt.ConnectionType.QueuedConnection,
-                           Q_ARG(str, "Analysis complete"))
-                        QMetaObject.invokeMethod(text, "setPlainText", 
-                           Qt.ConnectionType.QueuedConnection,
-                           Q_ARG(str, analysis_text))
-                    else:
-                        raise Exception(f"Ollama request failed: {response.text}")
-                    
+                    # Update the UI with the response
+                    QMetaObject.invokeMethod(status, "setText", 
+                       Qt.ConnectionType.QueuedConnection,
+                       Q_ARG(str, "Analysis complete"))
+                    QMetaObject.invokeMethod(text, "setPlainText", 
+                       Qt.ConnectionType.QueuedConnection,
+                       Q_ARG(str, analysis_text))
                 except Exception as e:
-                    self.logger.error(f"Ollama error: {e}")
-                    # Update error status on main thread
-                    QMetaObject.invokeMethod(status, "setText",
-                           Qt.ConnectionType.QueuedConnection,
-                           Q_ARG(str, "Analysis failed"))
-                    error_msg = "AI analysis failed. Is Ollama running?"
-                    QMetaObject.invokeMethod(self, "show_notification",
-                           Qt.ConnectionType.QueuedConnection,
-                           Q_ARG(str, "Error"),
-                           Q_ARG(str, error_msg))
+                    error_msg = f"Analysis error: {str(e)}"
+                    self.logger.error(error_msg)
+                    QMetaObject.invokeMethod(status, "setText", 
+                       Qt.ConnectionType.QueuedConnection,
+                       Q_ARG(str, "Analysis failed"))
+                    QMetaObject.invokeMethod(text, "setPlainText", 
+                       Qt.ConnectionType.QueuedConnection,
+                       Q_ARG(str, error_msg))
 
             Thread(target=analyze).start()
 
         except Exception as e:
-            self.logger.error(f"Error: {e}")
-            self.show_notification("Error", str(e))
+            error_msg = f"Error preparing analysis: {str(e)}"
+            self.logger.error(error_msg)
+            self.status_bar.showMessage(error_msg)
+    
+    def create_security_agent_chat_tab(self):
+        chat_tab = QWidget()
+        layout = QVBoxLayout()
+
+        # Chat display area
+        self.chat_display = QTextEdit()
+        self.chat_display.setReadOnly(True)
+        self.chat_display.setStyleSheet("""
+            QTextEdit {
+                background-color: #1e1e1e;
+                color: #ffffff;
+                border: 1px solid #333333;
+                border-radius: 4px;
+                padding: 8px;
+            }
+        """)
+        layout.addWidget(self.chat_display)
+
+        # Input area container
+        input_container = QWidget()
+        input_layout = QHBoxLayout(input_container)
+        input_container.setLayout(input_layout)
+
+        # User input area
+        self.user_input = QLineEdit()
+        self.user_input.setPlaceholderText('Enter message...')
+        self.user_input.returnPressed.connect(self.send_message)  # Allow Enter to send
+        self.user_input.setStyleSheet("""
+            QLineEdit {
+                background-color: #2d2d2d;
+                color: #ffffff;
+                border: 1px solid #333333;
+                border-radius: 4px;
+                padding: 5px;
+            }
+            QLineEdit:focus {
+                border: 1px solid #4a9eff;
+            }
+        """)
+        input_layout.addWidget(self.user_input)
+
+        # Send button
+        send_button = QPushButton('Send')
+        send_button.clicked.connect(self.send_message)
+        send_button.setStyleSheet("""
+            QPushButton {
+                background-color: #4a9eff;
+                color: white;
+                border: none;
+                padding: 5px 15px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #357abd;
+            }
+        """)
+        input_layout.addWidget(send_button)
+
+        # Copy button
+        copy_button = QPushButton('Copy Response')
+        copy_button.clicked.connect(self.copy_response)
+        copy_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2d2d2d;
+                color: white;
+                border: 1px solid #333333;
+                padding: 5px 15px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #404040;
+            }
+        """)
+        input_layout.addWidget(copy_button)
+
+        # New Chat button
+        new_chat_button = QPushButton('New Chat')
+        new_chat_button.clicked.connect(self.start_new_chat)
+        new_chat_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2d2d2d;
+                color: white;
+                border: 1px solid #333333;
+                padding: 5px 15px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #404040;
+            }
+        """)
+        input_layout.addWidget(new_chat_button)
+
+        layout.addWidget(input_container)
+
+        # Status label
+        self.chat_status_label = QLabel("")
+        self.chat_status_label.setStyleSheet("color: #888888;")
+        layout.addWidget(self.chat_status_label)
+
+        chat_tab.setLayout(layout)
+        self.tabs.addTab(chat_tab, "Security Agent")
+        return chat_tab
+
+    def send_message(self):
+        """Send a message to the security agent and display the response."""
+        message = self.user_input.text().strip()
+        if not message:
+            return
+
+        # Clear input and disable until response received
+        self.user_input.clear()
+        self.user_input.setEnabled(False)
+        self.chat_status_label.setText("Getting response...")
+        self.chat_status_label.setStyleSheet("color: #888888;")
+
+        # Format and display user message
+        user_html = f'<div style="margin: 10px 0;"><span style="color: #4a9eff;">You:</span> {message}</div>'
+        self.chat_display.append(user_html)
+
+        try:
+            # Get the currently selected model from config and ensure it's clean
+            model = self.config.OLLAMA_CONFIG.get('model', 'llama3.2').strip().split()[0]  # Get just the model name
+            self.logger.info(f"Using model: {model}")  # Log the cleaned model name
+
+            # Prepare the request to Ollama
+            payload = {
+                'model': model,
+                'messages': [
+                    {
+                        'role': 'system',
+                        'content': 'You are a Security Agent AI assistant. You help users understand and respond to security events and threats. Be concise and precise in your responses.'
+                    },
+                    {
+                        'role': 'user',
+                        'content': message
+                    }
+                ],
+                'stream': True  # Explicitly enable streaming
+            }
+
+            # Set proper headers
+            headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+
+            # Log the request for debugging
+            self.logger.info(f"Sending request to Ollama with payload: {payload}")
+
+            # Send request to Ollama
+            response = requests.post(
+                "http://localhost:11434/api/chat",
+                json=payload,
+                headers=headers,
+                timeout=30,  # Add timeout
+                stream=True  # Enable streaming
+            )
+            response.raise_for_status()  # Raise an error for bad responses
+            full_response = ""
+            for line in response.iter_lines():
+                if line:
+                    try:
+                        data = json.loads(line.decode('utf-8'))
+                        if data.get('done', False):
+                            break
+                        content = data.get('message', {}).get('content', '')
+                        if content:
+                            full_response += content
+                            # Update the UI with the partial response
+                            ai_html = f'<div style="margin: 10px 0; background-color: #2d2d2d; padding: 10px; border-radius: 4px;">'
+                            ai_html += f'<span style="color: #00ff00;">Security Agent:</span> {full_response}</div>'
+                            self.chat_display.clear()  # Clear existing content
+                            self.chat_display.append(user_html)  # Re-add user message
+                            self.chat_display.append(ai_html)  # Add AI response
+                            # Scroll to bottom
+                            scrollbar = self.chat_display.verticalScrollBar()
+                            scrollbar.setValue(scrollbar.maximum())
+                    except json.JSONDecodeError as e:
+                        self.logger.error(f"Error parsing JSON line: {line}")
+                        continue
+
+            # Clear status
+            self.chat_status_label.clear()
+
+        except requests.exceptions.ConnectionError:
+            error_msg = "Error: Could not connect to Ollama. Please ensure Ollama is running."
+            self.chat_display.append(f'<div style="color: #ff4444;">{error_msg}</div>')
+            self.chat_status_label.setText(error_msg)
+            self.chat_status_label.setStyleSheet("color: #ff4444;")
+            self.logger.error("Connection error when trying to reach Ollama")
+
+        except Exception as e:
+            error_msg = f"Error: {str(e)}"
+            self.chat_display.append(f'<div style="color: #ff4444;">{error_msg}</div>')
+            self.chat_status_label.setText("Error getting response")
+            self.chat_status_label.setStyleSheet("color: #ff4444;")
+            self.logger.error(f"Error in send_message: {str(e)}")
+
         finally:
-            self.analyze_button.setEnabled(True)
-            self.capture_status_label.setText("Status: Ready")
+            # Re-enable input
+            self.user_input.setEnabled(True)
+            self.user_input.setFocus()
+
+    def copy_response(self):
+        """Copy the last response from the security agent."""
+        try:
+            # Get all text
+            text = self.chat_display.toPlainText()
+
+            # Find the last response
+            parts = text.split('Security Agent:')
+            if len(parts) > 1:
+                last_response = parts[-1].strip()
+                QApplication.clipboard().setText(last_response)
+                self.chat_status_label.setText("Response copied to clipboard")
+                self.chat_status_label.setStyleSheet("color: #00ff00;")
+            else:
+                self.chat_status_label.setText("No response to copy")
+                self.chat_status_label.setStyleSheet("color: #ffa500;")  # Orange for warning
+
+        except Exception as e:
+            self.logger.error(f"Error copying response: {str(e)}")
+            self.chat_status_label.setText("Failed to copy response")
+            self.chat_status_label.setStyleSheet("color: #ff4444;")
+    def start_new_chat(self):
+        """Start a new chat by clearing history and display"""
+        self.conversation_history = []  # Clear conversation history
+        self.chat_display.clear()  # Clear the display
+        self.chat_status_label.setText("Started new chat")
+        self.chat_status_label.setStyleSheet("color: #00ff00;")
+        
     def create_system_tray(self):
         """Create and initialize the system tray icon"""
         self.tray_icon = QSystemTrayIcon(self)
@@ -4553,7 +4601,8 @@ Focus on suspicious patterns."""
                 return
                 
             reply = QMessageBox.question(
-                self, 'Confirm Delete',
+                self,
+                'Confirm Delete',
                 f'Are you sure you want to delete user {username}?',
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
@@ -4717,3 +4766,4 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+
