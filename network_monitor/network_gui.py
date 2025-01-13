@@ -3793,6 +3793,9 @@ Focus on suspicious patterns."""
         chat_tab = QWidget()
         layout = QVBoxLayout()
 
+        # Initialize conversation history
+        self.conversation_history = []
+
         # Chat display area
         self.chat_display = QTextEdit()
         self.chat_display.setReadOnly(True)
@@ -3888,6 +3891,12 @@ Focus on suspicious patterns."""
         self.chat_status_label.setStyleSheet("color: #888888;")
         layout.addWidget(self.chat_status_label)
 
+        # Add welcome message
+        welcome_message = """<div style="margin: 10px 0; background-color: #2d2d2d; padding: 10px; border-radius: 4px;">
+        <span style="color: #00ff00;">Security Agent:</span> Hello! I'm your Security Agent AI assistant. 
+        I can help you understand and respond to security events and threats. How can I assist you today?</div>"""
+        self.chat_display.append(welcome_message)
+
         chat_tab.setLayout(layout)
         self.tabs.addTab(chat_tab, "Security Agent")
         return chat_tab
@@ -3913,19 +3922,21 @@ Focus on suspicious patterns."""
             model = self.config.OLLAMA_CONFIG.get('model', 'llama3.2').strip().split()[0]  # Get just the model name
             self.logger.info(f"Using model: {model}")  # Log the cleaned model name
 
-            # Prepare the request to Ollama
+            # Add the new message to conversation history
+            self.conversation_history.append({
+                'role': 'user',
+                'content': message
+            })
+
+            # Prepare the request to Ollama with full conversation history
             payload = {
                 'model': model,
                 'messages': [
                     {
                         'role': 'system',
                         'content': 'You are a Security Agent AI assistant. You help users understand and respond to security events and threats. Be concise and precise in your responses.'
-                    },
-                    {
-                        'role': 'user',
-                        'content': message
                     }
-                ],
+                ] + self.conversation_history,
                 'stream': True  # Explicitly enable streaming
             }
 
@@ -3970,6 +3981,12 @@ Focus on suspicious patterns."""
                         self.logger.error(f"Error parsing JSON line: {line}")
                         continue
 
+            # Add the AI's response to conversation history
+            self.conversation_history.append({
+                'role': 'assistant',
+                'content': full_response
+            })
+
             # Clear status
             self.chat_status_label.clear()
 
@@ -3991,7 +4008,6 @@ Focus on suspicious patterns."""
             # Re-enable input
             self.user_input.setEnabled(True)
             self.user_input.setFocus()
-
     def copy_response(self):
         """Copy the last response from the security agent."""
         try:
@@ -4017,6 +4033,13 @@ Focus on suspicious patterns."""
         """Start a new chat by clearing history and display"""
         self.conversation_history = []  # Clear conversation history
         self.chat_display.clear()  # Clear the display
+        
+        # Add welcome message
+        welcome_message = """<div style="margin: 10px 0; background-color: #2d2d2d; padding: 10px; border-radius: 4px;">
+        <span style="color: #00ff00;">Security Agent:</span> Hello! I'm your Security Agent AI assistant. 
+        I can help you understand and respond to security events and threats. How can I assist you today?</div>"""
+        self.chat_display.append(welcome_message)
+        
         self.chat_status_label.setText("Started new chat")
         self.chat_status_label.setStyleSheet("color: #00ff00;")
         
