@@ -3772,7 +3772,7 @@ Focus on suspicious patterns."""
                     response = requests.post(
                         "http://localhost:11434/api/generate", 
                         json={
-                            'model': 'mistral',  # Specify model
+                            'model': 'llama3.2',  # Specify model
                             'prompt': prompt,
                             'stream': False  # Don't stream response
                         }
