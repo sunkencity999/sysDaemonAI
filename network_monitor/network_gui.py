@@ -16,6 +16,11 @@ from PyQt6.QtCore import Qt, QMetaObject, Q_ARG
 import socket
 import logging
 import platform
+import threading
+from .server import AgentServer  # Use relative import for server module
+import subprocess
+from datetime import datetime
+from pathlib import Path
 import psutil
 import openpyxl
 import random
@@ -27,13 +32,13 @@ import pandas as pd
 from datetime import datetime, timedelta
 from scapy.all import sniff, AsyncSniffer, get_if_list, conf, ETH_P_ALL, TCP, UDP
 from scapy.utils import PcapWriter
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
-                          QLabel, QPushButton, QComboBox, QLineEdit, QSpinBox,
-                          QTableWidget, QTableWidgetItem, QMessageBox, QFileDialog,
-                          QProgressBar, QFrame, QStatusBar, QHBoxLayout, QTextEdit,
-                          QTabWidget, QSplitter, QToolBar, QMenu, QDialog,
-                          QDialogButtonBox, QGroupBox, QFormLayout, QHeaderView, QListWidget,
-                          QGridLayout, QDateTimeEdit, QSystemTrayIcon, QCheckBox, QPlainTextEdit)
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+                         QLabel, QPushButton, QTextEdit, QTabWidget, QSystemTrayIcon,
+                         QMenu, QDialog, QLineEdit, QComboBox, QMessageBox, QFrame,
+                         QProgressBar, QGroupBox, QHeaderView, QToolBar, QCheckBox, QSplitter, QTableWidget, 
+                         QGridLayout, QDateTimeEdit, QSpinBox, QScrollArea,
+                         QRadioButton, QPlainTextEdit, QTableWidgetItem, QStackedWidget, QListWidget, 
+                         QDialogButtonBox, QFileDialog, QInputDialog)  # Added QDialogButtonBox
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QSize, QDateTime
 from PyQt6.QtGui import (QPainter, QColor, QPen, QBrush, QAction, QPalette, QIcon,
                        QLinearGradient, QImage)
@@ -262,6 +267,21 @@ class NetworkMonitorGUI(QMainWindow):
             self.network_monitor = NetworkMonitor()
             self.db_manager = DatabaseManager()
             self.auth_manager = AuthManager(self.db_manager)  # Initialize AuthManager
+            
+            # Initialize remote agent components
+            self.agents = []
+            self.agent_search_input = QLineEdit()
+            self.agents_list = QComboBox()
+            
+            # Initialize agent server
+            self.agent_server = AgentServer()
+            self.agent_server_thread = threading.Thread(target=self.agent_server.start, daemon=True)
+            self.agent_server_thread.start()
+            
+            # Timer to update agents list
+            self.agents_update_timer = QTimer()
+            self.agents_update_timer.timeout.connect(self.update_agents_list)
+            self.agents_update_timer.start(5000)  # Update every 5 seconds
             
             # Show splash screen
             self.splash = SplashScreen()
@@ -4416,6 +4436,33 @@ You have access to real-time system data and network monitoring information. Use
         # Initial data load
         self.refresh_users_table()
         self.refresh_roles_table()
+
+        # Remote Agents Section
+        agents_group = QGroupBox("Remote Agents")
+        agents_layout = QVBoxLayout(agents_group)
+
+        # Search bar
+        search_layout = QHBoxLayout()
+        search_label = QLabel("Search:")
+        self.agent_search_input.setPlaceholderText("Search agents...")
+        self.agent_search_input.textChanged.connect(self.filter_agents)
+        search_layout.addWidget(search_label)
+        search_layout.addWidget(self.agent_search_input)
+        agents_layout.addLayout(search_layout)
+
+        # Agents dropdown
+        self.agents_list.currentIndexChanged.connect(lambda idx: self.show_agent_details(idx))
+        agents_layout.addWidget(self.agents_list)
+
+        # Refresh button
+        refresh_agents_btn = QPushButton("Refresh Agents")
+        refresh_agents_btn.clicked.connect(self.load_remote_agents)
+        agents_layout.addWidget(refresh_agents_btn)
+
+        layout.addWidget(agents_group)
+
+        # Add this to the initial data load section
+        self.load_remote_agents()
         
         return tab
 
@@ -4508,8 +4555,7 @@ You have access to real-time system data and network monitoring information. Use
                 
                 # Actions
                 actions_widget = QWidget()
-                actions_layout = QHBoxLayout(actions_widget)
-                actions_layout.setContentsMargins(4, 4, 4, 4)
+                actions_layout = QHBoxLayout()
                 
                 # Change Password Button
                 change_pwd_btn = QPushButton("Change Password")
@@ -4693,6 +4739,112 @@ You have access to real-time system data and network monitoring information. Use
                 self.logger.error(f"Error updating password: {str(e)}")
                 QMessageBox.critical(self, "Error", f"Failed to update password: {str(e)}")
 
+    def load_remote_agents(self):
+        """Load list of remote agents from the database"""
+        try:
+            # Create data directory if it doesn't exist
+            data_dir = os.path.join(os.path.dirname(__file__), 'data')
+            os.makedirs(data_dir, exist_ok=True)
+            
+            # Load agents from file
+            agents_file = os.path.join(data_dir, 'remote_agents.json')
+            if os.path.exists(agents_file):
+                with open(agents_file, 'r') as f:
+                    self.agents = json.load(f)
+            else:
+                self.agents = []
+            
+            self.update_agents_list()
+            
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Failed to load remote agents: {e}")
+    
+    def filter_agents(self, text):
+        """Filter agents list based on search text"""
+        self.agents_list.clear()
+        for agent in self.agents:
+            if text.lower() in agent['hostname'].lower():
+                self.agents_list.addItem(agent['hostname'])
+    
+    def update_agents_list(self):
+        """Update the agents dropdown list"""
+        self.agents_list.clear()
+        for agent in sorted(self.agents, key=lambda x: x['hostname']):
+            self.agents_list.addItem(agent['hostname'])
+    
+    def show_agent_details(self, index):
+        """Show details for the selected agent"""
+        if index < 0:
+            return
+            
+        hostname = self.agents_list.currentText()
+        agent = next((a for a in self.agents if a['hostname'] == hostname), None)
+        if not agent:
+            return
+        
+        dialog = QDialog(self)
+        dialog.setWindowTitle(f"Agent Details - {hostname}")
+        dialog.setMinimumSize(600, 400)
+        
+        layout = QVBoxLayout()
+        
+        # Create tabs
+        tabs = QTabWidget()
+        
+        # System Info tab
+        system_tab = QWidget()
+        system_layout = QVBoxLayout()
+        system_text = QTextEdit()
+        system_text.setReadOnly(True)
+        system_text.setText(json.dumps(agent.get('system_info', {}), indent=2))
+        system_layout.addWidget(system_text)
+        system_tab.setLayout(system_layout)
+        tabs.addTab(system_tab, "System Info")
+        
+        # Alerts tab
+        alerts_tab = QWidget()
+        alerts_layout = QVBoxLayout()
+        alerts_text = QTextEdit()
+        alerts_text.setReadOnly(True)
+        alerts = agent.get('alerts', [])
+        alerts_text.setText("\n\n".join([
+            f"[{alert['timestamp']}] {alert['title']}\n{alert['message']}"
+            for alert in alerts
+        ]))
+        alerts_layout.addWidget(alerts_text)
+        alerts_tab.setLayout(alerts_layout)
+        tabs.addTab(alerts_tab, f"Alerts ({len(alerts)})")
+        
+        # Security Analysis tab
+        security_tab = QWidget()
+        security_layout = QVBoxLayout()
+        security_text = QTextEdit()
+        security_text.setReadOnly(True)
+        security_text.setText(agent.get('security_analysis', 'No security analysis available'))
+        security_layout.addWidget(security_text)
+        security_tab.setLayout(security_layout)
+        tabs.addTab(security_tab, "Security Analysis")
+        
+        # Network Info tab
+        network_tab = QWidget()
+        network_layout = QVBoxLayout()
+        network_text = QTextEdit()
+        network_text.setReadOnly(True)
+        network_text.setText(json.dumps(agent.get('network_info', {}), indent=2))
+        network_layout.addWidget(network_text)
+        network_tab.setLayout(network_layout)
+        tabs.addTab(network_tab, "Network Info")
+        
+        layout.addWidget(tabs)
+        
+        # Close button
+        close_btn = QPushButton("Close")
+        close_btn.clicked.connect(dialog.accept)
+        layout.addWidget(close_btn)
+        
+        dialog.setLayout(layout)
+        dialog.exec()
+
 class CommandThread(QThread):
     output_signal = pyqtSignal(str)
     finished_signal = pyqtSignal()
@@ -4763,3 +4915,4 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+    

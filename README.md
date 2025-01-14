@@ -7,7 +7,7 @@ A powerful system monitoring and security suite powered by advanced AI technolog
 ### Network Monitoring Dashboard
 ![Network Monitoring Dashboard](https://github.com/user-attachments/assets/0dff9e09-86b6-439f-a9e6-fa1c1fcf194e)
 
-*Real-time network traffic analysis with protocol breakdown and connection tracking*
+*Real-time network traffic analysis with basic protocol identification*
 
 ### Data Visualizations
 ![Virus Scanner Interface](https://github.com/user-attachments/assets/3336337e-c567-468e-83a0-63ba29f0073e)
@@ -17,7 +17,7 @@ A powerful system monitoring and security suite powered by advanced AI technolog
 ### AI Agent Management
 ![AI Agent Management](https://github.com/user-attachments/assets/4062f8c2-cf73-4500-b46a-d3ccf7ba7ab5)
 
-*CrewAI agent configuration and monitoring interface*
+*Local LLM integration for system management and security analysis*
 
 ### Packet Capture Functionality
 ![System Analysis](https://github.com/user-attachments/assets/dd56cdc2-065f-42a0-9270-d7d6cd5d7080)
@@ -27,25 +27,21 @@ A powerful system monitoring and security suite powered by advanced AI technolog
 ## Core Features
 
 ### 1. Network Monitoring
-- **Real-time Traffic Analysis**: Monitor network traffic with detailed packet inspection
-- **Protocol Analysis**: Deep packet inspection for various protocols (HTTP, HTTPS, DNS, etc.)
-- **Bandwidth Monitoring**: Track bandwidth usage by application and process
+- **Real-time Traffic Analysis**: Monitor network traffic with basic protocol identification
+- **Protocol Analysis**: Basic protocol identification and traffic categorization
+- **Bandwidth Monitoring**: Track bandwidth usage by connection
 - **Connection Tracking**: Monitor active connections and their states
-- **Network Visualization**: Interactive visualization of network traffic patterns
-- **Anomaly Detection**: AI-powered detection of unusual network behavior
+- **Network Visualization**: Basic visualization of network traffic patterns
 
 ### 2. Advanced Virus Scanner
 - **Multi-layered Threat Detection**:
   - YARA Rules for pattern matching
   - VirusTotal API integration for cloud-based threat intelligence
   - File entropy analysis for detecting packed/encrypted malware
-  - Suspicious pattern recognition
   - File type detection using libmagic
-  - Behavioral analysis
 - **Smart False Positive Reduction**:
-  - Context-aware scanning with different thresholds for different file types
   - Whitelist system for development files and trusted locations
-  - Source code-aware scanning with adjusted confidence levels
+  - Context-aware scanning with different thresholds
 - **Secure Quarantine System**:
   - Isolated quarantine storage with metadata tracking
   - File integrity verification
@@ -100,36 +96,122 @@ A powerful system monitoring and security suite powered by advanced AI technolog
   - Resource-aware agent scheduling
   - Configurable automation levels
 
+### 5. Remote Agent System
+- **Auto-Discovery and Connection**:
+  - Agents automatically discover and connect to the main application
+  - UDP broadcast-based discovery on port 5776
+  - TCP connections for data transfer on port 5775
+  - Automatic reconnection on network changes
+  - Support for multiple network interfaces
+  - Fallback to localhost for development
+
+- **Agent Features**:
+  - System metrics collection and reporting
+  - Real-time monitoring of remote systems
+  - Resource usage tracking (CPU, memory, disk, network)
+  - Process monitoring and management
+  - Event logging and notification
+  - Secure communication channel with the main server
+
+- **Data Collection**:
+  - System performance metrics
+  - Network connection statistics
+  - Process information and resource usage
+  - System events and logs
+  - Security-related events
+  - Custom metric collection through plugins
+
+- **Security and Privacy**:
+  - Encrypted communication between agents and server
+  - Authentication for agent connections
+  - Rate limiting to prevent DoS attacks
+  - Configurable data collection policies
+  - Data anonymization options
+  - Audit logging of all agent activities
+
+### Remote Agent Setup (For Monitored Systems)
+1. Download just the agent installer:
+   ```bash
+   curl -O https://raw.githubusercontent.com/sunkencity999/sysDaemonAI/main/remote_agent/install.py
+   ```
+
+2. Run the agent installation script:
+   ```bash
+   python3 install.py
+   ```
+   This will:
+   - Install agent-specific dependencies
+   - Set up agent directories
+   - Configure autostart
+   - Create initial configuration
+
+3. The agent will be installed to:
+   - macOS: `~/Library/Application Support/SysDaemonAgent`
+   - Linux: `~/.local/share/sysdaemon-agent`
+   - Other: `~/.sysdaemon-agent`
+
+4. Start the agent service:
+   ```bash
+   python3 ~/Library/Application\ Support/SysDaemonAgent/bin/agent.py
+   ```
+   Or use the system autostart (configured during installation)
+
+The agent will automatically:
+1. Listen for server broadcasts on port 5776
+2. Connect to the discovered server on port 5775
+3. Begin sending system metrics and data
+4. Maintain connection and reconnect if needed
+
+### Remote Agent Configuration
+Create `agent_config.yaml` in the agent installation directory:
+```yaml
+server:
+  discovery_port: 5776  # UDP discovery port
+  connection_port: 5775  # TCP connection port
+  reconnect_interval: 5  # Seconds between reconnection attempts
+
+metrics:
+  collection_interval: 60  # Seconds between metric collections
+  include:
+    - cpu
+    - memory
+    - disk
+    - network
+    - processes
+  exclude:
+    - sensitive_data
+
+security:
+  encrypt_data: true
+  verify_server: true
+  allowed_servers: []  # Empty list means accept any server
+```
+
 ## Technology Stack
 
 ### Core Technologies
 - **Python 3.12+**: Core application framework
 - **PyQt6**: Modern, responsive GUI interface
 - **asyncio**: Asynchronous I/O for efficient operations
-- **CrewAI**: Multi-agent system for autonomous operations
-- **Ollama**: Local LLM deployment for AI operations
+- **Ollama**: Local LLM capabilities
 
-### Network Components
-- **tcpdump**: Low-level packet capture
-- **pyshark**: Packet analysis and protocol inspection
-- **scapy**: Network packet manipulation
-- **Wireshark** (optional): Advanced packet analysis
+#### Network Components
+- **socket**: Network communication
+- **netifaces**: Network interface discovery
+- **psutil**: System and process monitoring
 
-### Security Components
+#### Security Components
 - **yara-python**: Pattern matching engine
 - **python-magic**: File type detection
-- **cryptography**: Secure operations and hash verification
-- **aiohttp**: Async HTTP for API interactions
-
-### AI and Machine Learning
-- **TensorFlow/Keras**: Machine learning models
-- **scikit-learn**: Statistical analysis
-- **Natural Language Processing**: Command interpretation
-
-### APIs and External Services
 - **VirusTotal API**: Cloud-based threat intelligence
-- **Open Threat Exchange (OTX)**: Threat data sharing
-- **MalwareBazaar**: Malware sample analysis
+- **logging**: Event and error logging
+- **json**: Data serialization
+- **threading**: Concurrent operations
+
+#### External Dependencies
+- **Ollama**: Required for LLM features
+  - codellama model
+  - mistral model
 
 ## Setup and Configuration
 
@@ -154,11 +236,12 @@ A powerful system monitoring and security suite powered by advanced AI technolog
    curl https://ollama.ai/install.sh | sh
    ```
 
-3. Run the installation script:
+3. Run the main installation script:
    ```bash
    chmod +x install.sh
    ./install.sh
    ```
+   This will install the full SysDaemon AI application with all its components.
 
 4. Configure API keys in `.env`:
    ```
@@ -321,7 +404,7 @@ git clone https://github.com/sunkencity999/sysdaemon-ai.git
 cd sysdaemon-ai
 
 # Run the installation script
-sudo ./install.sh
+sudo python3 install.py
 ```
 
 The install script will:
