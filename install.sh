@@ -351,6 +351,10 @@ generate_launch_agent_plist() {
     # Get the installation directory
     local INSTALL_DIR="$1"
     
+    # Create logs directory if it doesn't exist
+    mkdir -p "$INSTALL_DIR/logs"
+    chown $REAL_USER:staff "$INSTALL_DIR/logs"
+    
     # Create startup wrapper script
     cat > "$INSTALL_DIR/startup_wrapper.command" << EOF
 #!/bin/bash
@@ -384,6 +388,8 @@ EOF
     </array>
     <key>RunAtLoad</key>
     <true/>
+    <key>LaunchOnlyOnce</key>
+    <true/>
     <key>KeepAlive</key>
     <false/>
     <key>StandardOutPath</key>
@@ -393,9 +399,11 @@ EOF
     <key>EnvironmentVariables</key>
     <dict>
         <key>PATH</key>
-        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin</string>
         <key>PYTHONPATH</key>
         <string>$INSTALL_DIR</string>
+        <key>DISPLAY</key>
+        <string>:0</string>
         <key>HOME</key>
         <string>$REAL_HOME</string>
     </dict>
