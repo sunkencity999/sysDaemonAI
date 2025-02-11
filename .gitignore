@@ -170,5 +170,8 @@ keys/private_key.pem
 # Ignore administrator CLI
 license_cli.py
 
+# Website directory
+SysDaemonAI Website/
+
 # Remove license manager from gitignore
 # license_manager.py

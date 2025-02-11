@@ -35,7 +35,7 @@ A powerful system monitoring and security suite powered by advanced AI technolog
 
 ### 2. Advanced Virus Scanner
 - **Multi-layered Threat Detection**:
-  - YARA Rules for pattern matching
+  - Pattern-based threat detection
   - VirusTotal API integration for cloud-based threat intelligence
   - File entropy analysis for detecting packed/encrypted malware
   - File type detection using libmagic
@@ -201,15 +201,12 @@ security:
 - **psutil**: System and process monitoring
 
 #### Security Components
-- **yara-python**: Pattern matching engine
 - **python-magic**: File type detection
 - **VirusTotal API**: Cloud-based threat intelligence
 - **logging**: Event and error logging
-- **json**: Data serialization
-- **threading**: Concurrent operations
 
-#### External Dependencies
-- **Ollama**: Required for LLM features
+#### AI Components
+- **Ollama**: Local LLM capabilities:
   - codellama model
   - mistral model
 
@@ -221,427 +218,149 @@ security:
 - Ollama (for local LLM capabilities)
 - System dependencies (installed automatically):
   - libmagic
-  - tcpdump
-  - Wireshark (optional)
+  - libpcap
+  - libffi
 
-### Installation
+### Installation Steps
+
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/sysDaemonAI.git
-   cd sysDaemonAI
-   ```
-
-2. Install Ollama:
-   ```bash
-   curl https://ollama.ai/install.sh | sh
-   ```
-
-3. Run the main installation script:
-   ```bash
-   chmod +x install.sh
-   ./install.sh
-   ```
-   This will install the full SysDaemon AI application with all its components.
-
-4. Configure API keys in `.env`:
-   ```
-   VIRUSTOTAL_API_KEY="your_key_here"
-   OTX_API_KEY="your_key_here"
-   MALWAREBAZAAR_API_KEY="your_key_here"
-   ```
-
-5. Initialize Ollama models:
-   ```bash
-   ollama pull codellama
-   ollama pull mistral
-   ```
-
-### Running the Application
 ```bash
-python3 -m network_monitor.network_gui
+git clone https://github.com/sunkencity999/sysDaemonAI.git
+cd sysDaemonAI
 ```
 
-## Usage
-
-### Network Monitoring
-1. Launch the application
-2. Select network interface to monitor
-3. Use the dashboard to view real-time network statistics
-4. Configure alerts for suspicious activity
-
-### Virus Scanning
-1. Click "Scan" in the virus scanner tab
-2. Select directory to scan
-3. Review suspicious files with confidence levels
-4. Choose to quarantine or ignore detected threats
-
-### AI System Management
-1. Use natural language commands in the AI terminal
-2. Review AI-generated recommendations
-3. Configure autonomous response settings
-4. Monitor AI learning patterns
-5. Adjust agent team composition and roles
-6. Review agent collaboration logs
-7. Configure LLM settings for local processing
-
-### Security Agent Chat
-The Security Agent Chat provides an interactive interface for discussing and analyzing security concerns:
-
-1. **Contextual Security Analysis**:
-   - Maintains conversation history for in-depth security discussions
-   - Understands context from previous messages for better assistance
-   - Provides precise, security-focused responses
-
-2. **Security Expertise**:
-   - Helps analyze potential security threats
-   - Explains security concepts and best practices
-   - Assists with incident response planning
-   - Provides guidance on security configurations
-
-3. **User-Friendly Interface**:
-   - Clean, modern chat interface
-   - Real-time streaming responses
-   - Easy-to-use message input
-   - Copy functionality for responses
-   - New chat option to start fresh conversations
-
-4. **Integration with System Data**:
-   - References real-time system security status
-   - Provides context-aware security recommendations
-   - Analyzes current network activity patterns
-
-## Configuration
-
-### Agent Configuration
-The `config/agents.yaml` file allows you to customize the behavior of your AI agents:
-```yaml
-security_analyst:
-  model: codellama
-  temperature: 0.1
-  max_tokens: 2000
-  
-system_monitor:
-  model: mistral
-  temperature: 0.2
-  max_tokens: 1000
-  
-network_inspector:
-  model: codellama
-  temperature: 0.1
-  max_tokens: 1500
-```
-
-### Ollama Configuration
-Configure local LLM settings in `config/ollama.yaml`:
-```yaml
-default_model: codellama
-fallback_model: mistral
-max_concurrent_requests: 5
-timeout: 30
-memory_limit: 4096
-```
-
-## Security Considerations
-- Requires root/sudo access for packet capture
-- API keys should be kept secure
-- Quarantined files are stored safely with integrity checks
-- System makes no autonomous changes without user approval
-
-## Contributing
-Contributions are welcome! Please read our contributing guidelines and submit pull requests to our repository.
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Commercial License
-
-This software is licensed for commercial use. By purchasing a license, you agree to the following terms:
-
-- You may install and use the software on the specified number of machines as per the license tier purchased.
-- You may not redistribute, modify, or reverse-engineer the software without written permission from the author.
-- Support and updates are provided for the duration of the license.
-- Licenses are non-transferable.
-
-For more details, please refer to the licensing agreement provided upon purchase.
-
-## Licensing Information
-
-- **Personal License**: $30/year (single machine)
-- **Professional License**: $99/year (up to five machines)
-- **Enterprise License**: $1499 (unlimited installations)
-
-Visit [sysdaemonai.com](https://sysdaemonai.com) to purchase licenses.
-
-## Acknowledgments
-- Codeium AI team for AI integration support
-- VirusTotal for threat intelligence
-- Open source community for various tools and libraries
-
-## Support
-For support, please open an issue in the GitHub repository or contact our support team.
-
-## Prerequisites
-
-Before installing SysDaemon AI, ensure you have:
-
-- macOS 11.0 or later
-- Python 3.8 or later
-- Administrative privileges
-- Command Line Tools for Xcode (for compilation of dependencies)
-- Homebrew (recommended for easy installation)
-
-## Installation Guide
-
-You can install SysDaemon AI using either the automated install script (recommended) or manual installation.
-
-### Option 1: Automated Installation (Recommended)
-
-The automated install script will guide you through the entire installation process, handling all dependencies and configuration:
-
+2. Install Python dependencies:
 ```bash
-# Clone the repository
-git clone https://github.com/sunkencity999/sysdaemon-ai.git
-cd sysdaemon-ai
-
-# Run the installation script
-sudo python3 install.py
+python3 -m pip install -r requirements.txt
 ```
-
-The install script will:
-1. Check and install all system requirements
-2. Install and configure Ollama with the required model
-3. Set up Python virtual environment
-4. Install all Python dependencies
-5. Configure permissions for packet capture
-6. Initialize the database
-7. Set up your AbuseIPDB API key
-8. Create necessary directories and files
-
-During installation, you'll be prompted to:
-- Install Wireshark (optional)
-- Enter your AbuseIPDB API key
-- Grant necessary permissions
-
-### Option 2: Manual Installation
-
-If you prefer to install components manually, follow these steps:
-
-### 1. System Preparation
-
-First, ensure you have the necessary system tools:
-
-```bash
-# Install Homebrew if not already installed
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install Command Line Tools
-xcode-select --install
-
-# Install Ollama
-brew install ollama
-```
-
-### 2. Ollama Setup
-
-```bash
-# Start Ollama service
-ollama serve
-
-# In a new terminal, pull the required model
-ollama pull llama2
-```
-
-### 3. Application Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/sysdaemon-ai.git
-cd sysdaemon-ai
-
-# Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install Python dependencies
-pip install -r requirements.txt
-
-# Install Wireshark (optional, for advanced packet analysis)
-brew install --cask wireshark
-```
-
-### 4. Configuration
-
-1. Create your configuration file:
-```bash
-cp config.example.py config.py
-```
-
-2. Edit `config.py` with your settings:
-   - Add your AbuseIPDB API key (get one at https://www.abuseipdb.com/api)
-   - Adjust monitoring thresholds if needed
-   - Configure backup settings
 
 3. Initialize the database:
 ```bash
 python3 init_db.py
 ```
 
-## Usage Guide
-
-### Starting the Application
-
-1. Ensure Ollama is running:
+4. Install Ollama (if not already installed):
 ```bash
-ollama serve
+curl https://ollama.ai/install.sh | sh
 ```
 
-2. In a new terminal, launch SysDaemon AI:
+5. Pull required models:
 ```bash
-cd sysdaemon-ai
+ollama pull codellama
+ollama pull mistral
+```
+
+### Configuration
+
+1. Copy the example configuration:
+```bash
+cp config.example.yaml config.yaml
+```
+
+2. Edit the configuration file:
+```yaml
+network:
+  monitor_interfaces:
+    - en0
+    - en1
+  exclude_ports:
+    - 22
+    - 80
+    - 443
+
+virus_scanner:
+  scan_interval: 3600  # seconds
+  excluded_dirs:
+    - /System
+    - /Library
+  quarantine_dir: ~/.sysdaemon/quarantine
+
+ai:
+  ollama:
+    host: localhost
+    port: 11434
+    models:
+      - codellama
+      - mistral
+  agent_teams:
+    - security
+    - network
+    - system
+```
+
+### Running the Application
+
+1. Start the main application:
+```bash
+python3 main.py
+```
+
+2. Start the network monitor:
+```bash
+python3 network_monitor.py
+```
+
+3. Start the AI agents:
+```bash
+python3 ai_agents.py
+```
+
+## Development
+
+### Setting Up Development Environment
+
+1. Create a virtual environment:
+```bash
+python3 -m venv venv
 source venv/bin/activate
-sudo python3 network_gui.py
 ```
 
-### Best Practices
-
-1. System Health Monitoring
-   - Keep the System Health panel visible to monitor resource usage
-   - Set appropriate alert thresholds in config.py
-   - Review historical data periodically to identify patterns
-
-2. Network Monitoring
-   - Use the connections table filters to focus on specific traffic
-   - Enable notifications for suspicious connections
-   - Review the security analysis panel regularly
-
-3. Packet Capture
-   - Start with broad filters and narrow down as needed
-   - Use the "Export to PCAP" feature for detailed Wireshark analysis
-   - Keep capture sessions focused and time-limited
-
-4. Security Analysis
-   - Review the AI-powered security insights daily
-   - Investigate high-severity threats promptly
-   - Keep the threat database updated
-
-5. Data Management
-   - Export important data regularly
-   - Configure appropriate retention periods
-   - Use the backup feature for critical data
-
-### Troubleshooting
-
-1. Permission Issues
+2. Install development dependencies:
 ```bash
-# Ensure proper permissions
-sudo chown -R $(whoami) /var/log/sysdaemon
-sudo chmod 755 /var/log/sysdaemon
+pip install -r requirements-dev.txt
 ```
 
-2. Database Issues
+### Running Tests
+
 ```bash
-# Reset the database if corrupted
-rm data/monitoring.db
-python3 init_db.py
+pytest tests/
 ```
 
-3. Ollama Connection
+### Building Documentation
+
 ```bash
-# Check Ollama status
-curl http://localhost:11434/api/tags
-
-# Restart Ollama if needed
-brew services restart ollama
-```
-
-4. Network Capture Issues
-```bash
-# Check tcpdump permissions
-sudo chmod +s $(which tcpdump)
-```
-
-## Testing
-
-SysDaemon AI includes a comprehensive test suite to ensure reliability and functionality. To run the tests:
-
-1. Activate the virtual environment:
-```bash
-source venv-3.12/bin/activate  # On macOS/Linux
-```
-
-2. Run all tests with coverage report:
-```bash
-python -m pytest tests/ -v --cov=.
-```
-
-3. Run specific test files:
-```bash
-python -m pytest tests/test_network_monitor.py -v
-```
-
-4. Run tests in parallel (faster execution):
-```bash
-python -m pytest tests/ -v -n auto
-```
-
-The test suite includes:
-- Unit tests for core functionality
-- Integration tests for system components
-- Asynchronous operation tests
-- Mock-based tests for external dependencies
-- Performance monitoring tests
-- Network connection handling tests
-
-Test coverage reports are generated in both terminal output and HTML format. View the detailed HTML report by opening `htmlcov/index.html` in your browser after running the tests with the `--cov` flag.
-
-## Maintenance
-
-### Regular Maintenance Tasks
-
-1. Database Optimization
-```bash
-# Compact the database monthly
-sqlite3 data/monitoring.db "VACUUM;"
-```
-
-2. Log Management
-```bash
-# Rotate logs weekly
-./scripts/rotate_logs.sh
-```
-
-3. Update Dependencies
-```bash
-pip install --upgrade -r requirements.txt
+cd docs
+make html
 ```
 
 ## Contributing
 
-Contributions are welcome! Please follow these steps:
-
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Submit a pull request
+4. Run the tests
+5. Submit a pull request
 
-## Version History
+## System Requirements
 
-### v1.3.0 (December 19, 2024)
-- Added PCAP export functionality
-- Enhanced packet capture capabilities
-- Improved packet analysis and visualization
-- Added Wireshark integration support
-- Updated installation process for better permission handling
+Before installing SysDaemon AI, ensure you have:
 
-### v1.2.0 (December 16, 2024)
-- Added LLM-powered security analysis with elevated privilege support
-- Improved error handling for permission-related issues
-- Enhanced logging system initialization
-- Added clear feedback for permission requirements
-- Updated security analysis to handle connection data more robustly
+- macOS 11.0 or later
+- Python 3.12 or later
+- Administrative privileges
+- Command Line Tools for Xcode (for compilation of dependencies)
+- Homebrew (recommended for easy installation)
 
-### v1.1.0 (Initial Release)
-- Core monitoring and security features
-- Integration with AbuseIPDB
-- Basic automated responses
-- Data persistence and analytics
+## Licensing Information
+
+- **Personal License**: $39/year (single machine)
+- **Professional License**: $99/year (up to five machines)
+- **Enterprise License**: $1499 (unlimited installations)
+
+## Support
+
+For support, please:
+1. Check the documentation
+2. Search existing issues
+3. Open a new issue if needed
+4. Email support@sysdaemonai.com
