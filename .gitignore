@@ -172,6 +172,7 @@ license_cli.py
 
 # Website directory
 SysDaemonAI Website/
+website_temp/
 
 # Remove license manager from gitignore
 # license_manager.py
